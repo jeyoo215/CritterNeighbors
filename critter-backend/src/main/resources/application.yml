@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: critter-backend
+
+  # MySQL 데이터베이스 연결 세팅
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 로컬 MySQL에 critter_db라는 빈 데이터베이스를 미리 만들어둬야 해!
+    url: jdbc:mysql://localhost:3306/critter_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1234
+
+  # JPA / Hibernate 자동 테이블 생성 세팅
+  jpa:
+    hibernate:
+      ddl-auto: create     
+      # create : 서버 켤 때마다 테이블을 새로 밀고 만듦
+      # update : 기존 테이블을 유지하며 변경사항만 반영
+    properties:
+      hibernate:
+        show_sql: true      # 콘솔창에 스프링이 날리는 SQL 쿼리를 보여줌
+        format_sql: true    # SQL 쿼리를 한눈에 보기 좋게 정렬
+        use_sql_comments: true
