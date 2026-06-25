@@ -1,122 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from 'react';
+import AuthForm from './components/AuthForm';
+import Lobby from './components/Lobby';
+import EcosystemRoom from './components/EcosystemRoom';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  // 1️⃣ 로그인한 유저 정보를 담을 전역 상태
+  const [user, setUser] = useState(null);
 
+  // 2️⃣ 현재 유저가 입장한 실제 방 정보를 가리키는 상태 (null이면 로비에 있는 상태)
+  const [currentRoom, setCurrentUserId] = useState(null);
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+  };
+
+  // 🚪 로비에서 [입장하기] 또는 치트키 워프 버튼을 눌렀을 때 실행될 함수
+  const handleEnterRoom = (roomData) => {
+    setCurrentUserId(roomData);
+  };
+
+  // ↩️ 방 안에서 [로비로 나가기] 버튼을 눌렀을 때 다시 로비 껍데기로 복원하는 함수
+  const handleLeaveRoom = () => {
+    setCurrentUserId(null);
+  };
+
+  // 🔐 1차 관문: 로그인이 안 되어 있다면 무조건 로그인 폼 출력
+  if (!user) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <AuthForm onLoginSuccess={handleLoginSuccess} />
+      </div>
+    );
+  }
+
+  // 🌌 2차 관문: 로그인은 됐는데 클릭해서 들어간 방(currentRoom)이 없다면? -> 로비 센터 출력!
+  if (!currentRoom) {
+    return (
+      <Lobby 
+        user={user} 
+        onEnterRoom={handleEnterRoom} 
+      />
+    );
+  }
+
+  // 🐧 3차 관문: 로그인도 됐고, 입장한 방 정보도 존재한다면? -> 대망의 2D 생태계 관찰 룸 시동!
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <EcosystemRoom 
+      roomId={currentRoom.roomId}
+      currentUserId={user.userId} // 혹은 백엔드 스펙에 따라 user.id
+      nickname={user.nickname}
+      onLeaveRoom={handleLeaveRoom}
+    />
+  );
 }
-
-export default App

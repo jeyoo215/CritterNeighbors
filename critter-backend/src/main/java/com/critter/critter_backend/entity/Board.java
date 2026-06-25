@@ -1,5 +1,7 @@
 package com.critter.critter_backend.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +21,9 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "BOARD")
 @Getter @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Board {
 
     @Id
