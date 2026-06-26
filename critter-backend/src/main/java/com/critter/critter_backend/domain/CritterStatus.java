@@ -1,6 +1,6 @@
 package com.critter.critter_backend.domain;
 
-public enum CreatureStatus {
+public enum CritterStatus {
     IDLE,
     PANIC,
     SHELTER

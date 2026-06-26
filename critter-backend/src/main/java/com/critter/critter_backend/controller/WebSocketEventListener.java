@@ -1,9 +1,9 @@
 package com.critter.critter_backend.controller;
 
-import com.critter.critter_backend.domain.CreatureStatus;
+import com.critter.critter_backend.domain.CritterStatus;
 import com.critter.critter_backend.dto.CritterLocationDto;
-import com.critter.critter_backend.entity.Creature;
-import com.critter.critter_backend.repository.CreatureRepository;
+import com.critter.critter_backend.entity.Critter;
+import com.critter.critter_backend.repository.CritterRepository;
 import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.List;
 public class WebSocketEventListener {
 
     private final EcosystemMemoryStorage memoryStorage;
-    private final CreatureRepository creatureRepository;
+    private final CritterRepository critterRepository;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -35,16 +35,16 @@ public class WebSocketEventListener {
         memoryStorage.addSession(roomId, sessionId);
         log.info("🔌 [소켓 연결] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
 
-        if (memoryStorage.getCreaturesByRoom(roomId).isEmpty()) {
-            List<Creature> dbCreatures = creatureRepository.findByEcosystem_RoomId(roomId);
-            List<CritterLocationDto> memoryCreatures = new ArrayList<>();
+        if (memoryStorage.getCrittersByRoom(roomId).isEmpty()) {
+            List<Critter> dbCritters = critterRepository.findByEcosystem_RoomId(roomId);
+            List<CritterLocationDto> memoryCritters = new ArrayList<>();
 
-            for (Creature c : dbCreatures) {
+            for (Critter c : dbCritters) {
                 // 🟢 [에러 진압 1] c.getStatus() 뒤에 .name()을 붙여 DTO(String) 규격에 완벽 일치!
-                memoryCreatures.add(new CritterLocationDto(
-                        c.getCreatureId(),
-                        c.getCreatureName(),
-                        c.getCreatureType().name(), 
+                memoryCritters.add(new CritterLocationDto(
+                        c.getCritterId(),
+                        c.getCritterName(),
+                        c.getCritterType().name(), 
                         400.0, 300.0,               
                         c.getStatus().name(), 
                         (Math.random() - 0.5) * 4.0, 
@@ -52,8 +52,8 @@ public class WebSocketEventListener {
                 ));
             }
             
-            memoryStorage.loadCreatures(roomId, memoryCreatures);
-            log.info("💾 [On-Demand 로딩] DB에서 {}마리의 동물을 방 {}번 메모리에 적재 완료!", memoryCreatures.size(), roomId);
+            memoryStorage.loadCritters(roomId, memoryCritters);
+            log.info("💾 [On-Demand 로딩] DB에서 {}마리의 동물을 방 {}번 메모리에 적재 완료!", memoryCritters.size(), roomId);
         }
     }
 
@@ -71,12 +71,12 @@ public class WebSocketEventListener {
 
         // 🟢 [에러 진압 3] 네 순정 메서드 !hasPassengers(roomId) 로 비어있는지 체크!
         if (!memoryStorage.hasPassengers(roomId)) {
-            List<CritterLocationDto> memoryCreatures = memoryStorage.getCreaturesByRoom(roomId);
+            List<CritterLocationDto> memoryCritters = memoryStorage.getCrittersByRoom(roomId);
 
-            for (CritterLocationDto dto : memoryCreatures) {
-                creatureRepository.findById(dto.getCritterId()).ifPresent(creature -> {
-                    creature.setStatus(CreatureStatus.valueOf(dto.getStatus())); 
-                    creatureRepository.save(creature);
+            for (CritterLocationDto dto : memoryCritters) {
+                critterRepository.findById(dto.getCritterId()).ifPresent(critter -> {
+                    critter.setStatus(CritterStatus.valueOf(dto.getStatus())); 
+                    critterRepository.save(critter);
                 });
             }
 

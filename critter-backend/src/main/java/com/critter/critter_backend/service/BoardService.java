@@ -53,20 +53,23 @@ public class BoardService {
     }
 
     /*
-     * 4. 특정 질문글에 댓글 등록
-    */
+     * 4. 특정 질문글에 댓글 등록 
+     */
     @Transactional
     public Comment createComment(Long boardId, Long writerId, String content) {
+        // 기존 조회 로직은 그대로 유지!
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문글입니다."));
 
         Account writer = accountRepository.findById(writerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        Comment comment = new Comment();
-        comment.setBoard(board);
-        comment.setWriter(writer);
-        comment.setContent(content);
+        // 빌더 패턴으로 생성 (훨씬 깔끔해!)
+        Comment comment = Comment.builder()
+                .board(board)
+                .writer(writer)
+                .content(content)
+                .build();
 
         return commentRepository.save(comment);
     }
@@ -80,5 +83,36 @@ public class BoardService {
             throw new IllegalArgumentException("존재하지 않는 질문글입니다.");
         }
         return commentRepository.findByBoard_BoardIdOrderByCreatedAtAsc(boardId);
+    }
+
+    // 6. 게시글 수정
+    @Transactional
+    public Board updateBoard(Long boardId, String title, String content) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("글이 없습니다."));
+        board.setTitle(title);
+        board.setContent(content);
+        return boardRepository.save(board);
+    }
+
+    // 7. 댓글 수정
+    @Transactional
+    public Comment updateComment(Long commentId, String content) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 없습니다."));
+        comment.setContent(content);
+        return commentRepository.save(comment);
+    }
+
+    // 8. 게시글 삭제
+    @Transactional
+    public void deleteBoard(Long boardId) {
+        boardRepository.deleteById(boardId);
+    }
+
+    // 9. 댓글 삭제
+    @Transactional
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 }

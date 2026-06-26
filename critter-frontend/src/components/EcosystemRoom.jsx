@@ -1,69 +1,94 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { useNavigate } from 'react-router-dom';
+import { fetchGuestbooks, postGuestbook } from '../api/guestbookApi';
+import { getCritterImagePath } from '../constants/critterImages';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 
-export default function EcosystemRoom({ roomId, currentUserId, nickname, onLeaveRoom }) {
-  const navigate = useNavigate();
-  
+export default function EcosystemRoom({ currentRoom, currentUser, onLeaveRoom }) {
   const [critters, setCritters] = useState([]);
+  const [guestbooks, setGuestbooks] = useState([]); // 방명록
+  const [newContent, setNewContent] = useState(''); // 입력창
+  const [showShop, setShowShop] = useState(false); // 상점
   const stompClientRef = useRef(null);
 
-  // 🛒 [추가] 방 안에서 즉석으로 펭귄을 상점 분양받을 수 있게 하는 함수
-  const adoptPenguinInside = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/ecosystems/${roomId}/creatures`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          creatureName: "핑구",
-          creatureType: "PENGUIN" // 우리의 사랑 펭귄 🐧
-        }),
-      });
+  // 배경 설정
+  const theme = currentRoom?.roomTheme || 'DEFAULT';
+  const backgroundStyle = {
+    backgroundImage: `url(/${theme}.png)`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    width: `${CANVAS_WIDTH}px`,
+    height: `${CANVAS_HEIGHT}px`,
+    position: 'relative',
+    borderRadius: '12px',
+    overflow: 'hidden'
+  };
 
-      if (response.ok) {
-        alert("🐧 펭귄이 상점에서 분양되어 실시간 생태계 필드에 즉시 투입되었습니다!");
-      } else {
-        alert("분양 실패: 서식지 환경 테마를 확인하세요.");
-      }
+  const roomId = currentRoom.roomId;
+  const userId = currentUser.userId;
+
+  // 1. 방 입장 시 방명록 불러오기 (GET)
+  const loadGuestbooks = async () => {
+    try {
+      const data = await fetchGuestbooks(roomId);
+      setGuestbooks(data);
     } catch (error) {
-      console.error("분양 중 에러:", error);
+      console.error("방명록 로딩 실패:", error);
+    }
+  };
+
+  // 2. 방명록 작성 (POST)
+  const handleSendGuestbook = async () => {
+    console.log("전송할 roomId:", roomId); 
+    console.log("전송할 writerId:", userId);
+
+    if (!newContent.trim()) return;
+
+    if (!roomId) {
+      alert("방 ID가 없습니다!"); // 👈 이 메시지가 뜨면 100% roomId가 안 들어온 거임
+      return;
+    }
+
+    if (!userId) {
+      alert("로그인이 필요한 기능입니다.");
+      return;
+    } 
+
+    try {
+      await postGuestbook(roomId, userId, newContent);
+      setNewContent('');
+      loadGuestbooks(); // 작성 후 새로고침
+    } catch (error) {
+      if (error && error.message) {
+        alert(error.message);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
     }
   };
 
   useEffect(() => {
+    loadGuestbooks(); // 방 입장 시 방명록 로드
+
     const socket = new SockJS('http://localhost:8080/ws-ecosystem');
     const client = new Client({
       webSocketFactory: () => socket,
-      connectHeaders: {
-        roomId: String(roomId), 
-      },
-      //debug: (str) => console.log(str),
+      connectHeaders: { roomId: String(roomId) },
       reconnectDelay: 5000,
     });
 
     client.onConnect = () => {
-      console.log(`🔄 [Room ${roomId}] 웹소켓 연결 성공!`);
-      
-      // 방 입장 노크 신호 (Join)부터 먼저 보내서 서버가 이 방을 감지하게 함
-      // EcosystemRoom.jsx -> onConnect 내부
       client.publish({
         destination: `/app/ecosystem/${roomId}/join`,
-        body: JSON.stringify({ 
-          userId: currentUserId, 
-          nickname: nickname // 컨트롤러가 입장 처리를 함!
-        })
+        body: JSON.stringify({ userId: userId, nickname: currentUser.nickname })
       });
 
-      // 🟢 0.5초 뒤에 구독을 시작해서 서버가 입장 처리를 마칠 시간을 벌어줌
       setTimeout(() => {
         client.subscribe(`/topic/ecosystem/${roomId}`, (message) => {
-          if (message.body) {
-            setCritters(JSON.parse(message.body));
-          }
+          if (message.body) setCritters(JSON.parse(message.body));
         });
       }, 500);
     };
@@ -72,112 +97,122 @@ export default function EcosystemRoom({ roomId, currentUserId, nickname, onLeave
     stompClientRef.current = client;
 
     return () => {
-      if (stompClientRef.current) {
-        stompClientRef.current.deactivate();
-        console.log('❌ 방 퇴장, 소켓 연결 해제 (인메모리 자원 청소 완료)');
-      }
+      if (stompClientRef.current) stompClientRef.current.deactivate();
     };
-  }, [roomId, currentUserId, nickname]);
+  }, [roomId, userId, currentUser.nickname]);
 
-  // 마우스 접근 시 PANIC 상태 변화 인터랙션 송신
   const handleMouseMove = (e) => {
     if (!stompClientRef.current || !stompClientRef.current.connected) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
     critters.forEach((critter) => {
       const distance = Math.hypot(critter.x - mouseX, critter.y - mouseY);
-      
       if (distance < 100 && critter.status !== 'PANIC') {
         stompClientRef.current.publish({
-          destination: '/app/mouse-move', 
-          body: JSON.stringify({
-            roomId: roomId,
-            critterId: critter.critterId,
-            status: 'PANIC' 
-          }),
+          destination: '/app/mouse-move',
+          body: JSON.stringify({ roomId, critterId: critter.critterId, status: 'PANIC' }),
         });
       }
     });
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px' }}>
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '15px', width: `${CANVAS_WIDTH}px`, justifyContent: 'space-between' }}>
-        <h3 style={{ margin: 0 }}>🏞️ 현재 관찰 중: {roomId}번 생태계 서식지</h3>
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {/* 🛒 즉석 펭귄 소환 버튼 결합 */}
-          <button onClick={adoptPenguinInside} style={{ cursor: 'pointer', padding: '8px 16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-            🐧 여기서 바로 펭귄 분양받기
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <h3>🏞️ 현재 관찰 중: {roomId}번 생태계</h3>
+        {currentUser.userId === currentRoom.userId && (
+          <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
+            🛒 상점 열기
           </button>
-          
-          <button onClick={onLeaveRoom} style={{ cursor: 'pointer', padding: '8px 16px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-            🚪 방 나가기 (로비로)
-          </button>
+        )}
+        <button onClick={onLeaveRoom} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
+          🚪 방 나가기
+        </button>
+      </div>
+
+      {showShop && (
+      <div style={{ position: 'fixed', top: '10%', left: '20%', width: '60%', zIndex: 1000 }}>
+        <Shop 
+          //roomTheme={currentRoom.theme} 
+          userPoints={currentUser.points} 
+          onAdopt={(critter) => {
+            console.log("입양 시도:", critter);
+            // 여기서 백엔드 API 호출!
+            alert(`${critter.name} 입양 성공!`);
+          }}
+          onClose={() => setShowShop(false)} 
+        />
+      </div>
+    )}
+
+      <div style={{ display: 'flex', gap: '20px' }}>
+        {/* 생태계 필드 */}
+        <div onMouseMove={handleMouseMove} style={backgroundStyle}>
+          {critters.map((critter) => (
+            <CritterRendering key={critter.critterId} critter={critter} />
+          ))}
+        </div>
+
+        {/* 방명록 UI 영역 */}
+        <div style={{ width: '300px', height: `${CANVAS_HEIGHT}px`, backgroundColor: '#f4f4f4', padding: '15px', borderRadius: '8px', display: 'flex', flexDirection: 'column' }}>
+          <h4>💬 방명록</h4>
+          <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
+            {guestbooks.map((gb, i) => <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || "알수없음"}:</strong> {gb.content}</p>)}
+          </div>
+          <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} style={{ height: '60px', marginBottom: '10px' }} />
+          <button onClick={handleSendGuestbook} style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}>작성하기</button>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* 🎨 실시간 도트 동물들이 뛰어놀 가상 생태계 필드 */}
-      <div
-        onMouseMove={handleMouseMove}
-        style={{
-          width: `${CANVAS_WIDTH}px`,
-          height: `${CANVAS_HEIGHT}px`,
-          backgroundColor: '#2c3e50', 
-          position: 'relative',
-          overflow: 'hidden',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          cursor: 'crosshair',
-          backgroundImage: 'radial-gradient(#34495e 1px, transparent 0)', 
-          backgroundSize: '40px 40px'
-        }}
-      >
-        {critters.map((critter) => (
-          <div
-            key={critter.critterId}
-            style={{
-              position: 'absolute',
-              left: `${critter.x}px`,
-              top: `${critter.y}px`,
-              transform: 'translate(-50%, -50%)',
-              transition: 'left 0.033s linear, top 0.033s linear', 
-              textAlign: 'center',
-              userSelect: 'none'
-            }}
-          >
-            {/* 🟢 [싱크로 교정] 펭귄(PENGUIN) 이모지 매핑 장치 드디어 장착!! */}
-            <div style={{ fontSize: '36px', filter: 'drop-shadow(0px 4px 4px rgba(0,0,0,0.2))' }}>
-              {critter.creatureType === 'RABBIT' ? '🐇' : 
-               critter.creatureType === 'FOX' ? '🦊' : 
-               critter.creatureType === 'TURTLE' ? '🐢' : 
-               critter.creatureType === 'OCTOPUS' ? '🐙' : 
-               critter.creatureType === 'PENGUIN' ? '🐧' : '🐹'}
-            </div>
-            
-            <div style={{
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              color: 'white',
-              fontSize: '11px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              whiteSpace: 'nowrap',
-              marginTop: '4px'
-            }}>
-              {critter.name} ({critter.status || 'IDLE'})
-            </div>
-          </div>
-        ))}
 
-        {critters.length === 0 && (
-          <div style={{ color: '#ccc', textAlign: 'center', marginTop: '260px', fontSize: '15px', fontWeight: 'bold' }}>
-            ⏳ 🐧 생태계가 고요합니다. 상점에서 펭귄을 분양해 이 서식지를 가동해 주세요!
-          </div>
-        )}
-      </div>
+// 이미지
+// EcosystemRoom.jsx 파일 맨 아래
+function CritterRendering({ critter }) {
+  const imagePath = getCritterImagePath(critter.critterType, critter.status);
+  const [useEmoji, setUseEmoji] = useState(false);
+
+  const handleError = () => setUseEmoji(true);
+
+  const EMOJI_MAP = {
+    CAT: '🐈',
+    DOG: '🐕',
+    FOX: '🦊',
+    OCTOPUS: '🐙',
+    PENGUIN: '🐧',
+    RABBIT: '🐇',
+    REDPANDA: '🐼',
+    SQUIRREL: '🐿',
+    TURTLE: '🐢'
+  };
+
+  return (
+    <div style={{ 
+      position: 'absolute', 
+      left: `${critter.x}px`, 
+      top: `${critter.y}px`, 
+      transform: 'translate(-50%, -50%)',
+      transition: 'left 0.033s linear, top 0.033s linear',
+      width: '40px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      {useEmoji ? (
+        <div style={{ fontSize: '30px' }}>{EMOJI_MAP[critter.critterType] || '🐾'}</div>
+      ) : (
+        <img 
+          src={imagePath} 
+          alt={critter.critterType} 
+          onError={handleError} 
+          style={{ width: '40px', height: '40px' }} 
+        />
+      )}
     </div>
   );
 }

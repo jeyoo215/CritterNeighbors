@@ -30,6 +30,8 @@ public class UserService {
                 .password(password)
                 .nickname(nickname)
                 .build();
+        
+        account.setPoint(100L);
 
         return accountRepository.save(account);
     }

@@ -1,7 +1,7 @@
 package com.critter.critter_backend.entity;
 
-import com.critter.critter_backend.domain.CreatureStatus;
-import com.critter.critter_backend.domain.CreatureType;
+import com.critter.critter_backend.domain.CritterStatus;
+import com.critter.critter_backend.domain.CritterType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,32 +23,32 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CREATURES")
+@Table(name = "CRITTERS")
 @Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Creature {
+public class Critter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CREATURE_ID")
-    private Long creatureId;
+    @Column(name = "CRITTER_ID")
+    private Long critterId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOM_ID", nullable = false)
     private Ecosystem ecosystem;
 
-    @Column(name = "CREATURE_NAME", nullable = false)
-    private String creatureName;
+    @Column(name = "CRITTER_NAME", nullable = false)
+    private String critterName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "CREATURE_TYPE", nullable = false)
-    private CreatureType creatureType;
+    @Column(name = "CRITTER_TYPE", nullable = false)
+    private CritterType critterType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
-    private CreatureStatus status;
+    private CritterStatus status;
 
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private LocalDateTime createdAt;

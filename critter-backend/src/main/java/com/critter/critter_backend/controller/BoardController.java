@@ -1,5 +1,6 @@
 package com.critter.critter_backend.controller;
 
+import com.critter.critter_backend.dto.CommentRequestDto;
 import com.critter.critter_backend.entity.Board;
 import com.critter.critter_backend.entity.Comment;
 import com.critter.critter_backend.service.BoardService;
@@ -58,16 +59,14 @@ public class BoardController {
      * POST /api/boards/{boardId}/comments
     */
     @PostMapping("/{boardId}/comments")
-    public ResponseEntity<Comment> createComment(
+        public ResponseEntity<Comment> createComment(
             @PathVariable("boardId") Long boardId,
-            @RequestBody Map<String, Object> requestBody) {
-        
-        Long writerId = Long.valueOf(requestBody.get("writerId").toString());
-        String content = requestBody.get("content").toString();
-
-        Comment savedComment = boardService.createComment(boardId, writerId, content);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
-    }
+            @RequestBody CommentRequestDto dto) { // 👈 Map 대신 DTO 사용!
+    
+            // 이제 dto.getWriterId()랑 dto.getContent() 마음껏 써!
+            Comment savedComment = boardService.createComment(boardId, dto.getWriterId(), dto.getContent());
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+        }
 
     /*
      * 5. 특정 질문글에 달린 댓글 목록 조회 API (등록순)
@@ -77,5 +76,48 @@ public class BoardController {
     public ResponseEntity<List<Comment>> getCommentsByBoard(@PathVariable("boardId") Long boardId) {
         List<Comment> comments = boardService.getCommentsByBoard(boardId);
         return ResponseEntity.ok(comments);
+    }
+
+    /*
+     * 6. 게시글 수정 API
+     * PUT /api/boards/{boardId}
+     */
+    @PutMapping("/{boardId}")
+    public ResponseEntity<Board> updateBoard(@PathVariable("boardId") Long boardId, @RequestBody Map<String, Object> body) {
+        String title = (String) body.get("title");
+        String content = (String) body.get("content");
+        return ResponseEntity.ok(boardService.updateBoard(boardId, title, content));
+    }
+
+    /*
+     * 7. 댓글 수정 API (이게 누락되었거나 PUT이 아닐 거야!)
+     * PUT /api/boards/comments/{commentId}
+     */
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity<Comment> updateComment(
+            @PathVariable("commentId") Long commentId, 
+            @RequestBody Map<String, Object> body) {
+        String content = (String) body.get("content");
+        return ResponseEntity.ok(boardService.updateComment(commentId, content));
+    }
+
+    /*
+     * 8. 게시글 삭제 API
+     * DELETE /api/boards/{boardId}
+     */
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable("boardId") Long boardId) {
+        boardService.deleteBoard(boardId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /*
+     * 9. 댓글 삭제 API
+     * DELETE /api/boards/comments/{commentId}
+     */
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable("commentId") Long commentId) {
+        boardService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 }

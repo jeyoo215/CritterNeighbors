@@ -24,8 +24,12 @@ public class EcosystemService {
     @Transactional
     public Ecosystem createRoom(Long userId, String roomName, String themeStr) {
         // 1. 방을 개설할 유저 검증
-        Account owner = accountRepository.findById(userId)
+        Account account = accountRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        if (account.getPoint() < 50) {
+            throw new RuntimeException("포인트가 부족해요!");
+        }
 
         // 2. [명세서 스펙] OCEAN, FOREST, GRASSLAND 중 하나의 환경 테마 필수로 선택 검증
         EcosystemTheme theme;
@@ -37,9 +41,11 @@ public class EcosystemService {
 
         // 3. 방 엔티티 빌드 및 저장
         Ecosystem ecosystem = new Ecosystem();
-        ecosystem.setAccount(owner); // 네 연관관계 필드명 확인!
+        ecosystem.setAccount(account); // 네 연관관계 필드명 확인!
         ecosystem.setRoomName(roomName);
         ecosystem.setRoomTheme(theme); // Enum 세팅
+
+        account.setPoint(account.getPoint() - 50);
 
         return ecosystemRepository.save(ecosystem);
     }

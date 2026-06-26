@@ -32,8 +32,8 @@ public class ActionLog {
     private Long actionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CREATURE_ID", nullable = false)
-    private Creature creature;
+    @JoinColumn(name = "CRITTER_ID", nullable = false)
+    private Critter critter;
 
     @Column(name = "ACTION_TYPE", nullable = false)
     private String actionType;

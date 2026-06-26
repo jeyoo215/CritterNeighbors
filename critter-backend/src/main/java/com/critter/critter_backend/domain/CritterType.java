@@ -1,6 +1,6 @@
 package com.critter.critter_backend.domain;
 
-public enum CreatureType {
+public enum CritterType {
     OCTOPUS(EcosystemTheme.OCEAN),
     TURTLE(EcosystemTheme.OCEAN),
     PENGUIN(EcosystemTheme.OCEAN),
@@ -15,7 +15,7 @@ public enum CreatureType {
 
     private final EcosystemTheme requiredTheme;
 
-    CreatureType(EcosystemTheme requiredTheme) {
+    CritterType(EcosystemTheme requiredTheme) {
         this.requiredTheme = requiredTheme;
     }
 

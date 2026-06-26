@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 public class CritterLocationDto {
     private Long critterId;
     private String name;
-    private String creatureType;
+    private String critterType;
     private Double x;
     private Double y;
     private String status;
-    private Double vx; // 속도
-    private Double vy; // 방향
+    private Double vx;
+    private Double vy;
 }

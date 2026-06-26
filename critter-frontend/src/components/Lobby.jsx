@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 이거 추가!
 
-export default function Lobby({ user, onEnterRoom }) {
-  const navigate = useNavigate();
+export default function Lobby({ user, onEnterRoom, onGoToBoard, onLogout }) {
   const [rooms, setRooms] = useState([]);
   const [roomNameInput, setRoomNameInput] = useState('');
   const [themeInput, setThemeInput] = useState('OCEAN');
@@ -54,11 +52,20 @@ export default function Lobby({ user, onEnterRoom }) {
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h2>🏢 생태계 통합 로비 센터</h2>
-      <p>👤 <strong>{user.nickname}</strong>님의 개인 관리 대시보드</p>
+      <p>👤 <strong>{user.nickname}</strong>
+      <button 
+        onClick={onLogout} 
+        style={{ padding: '8px 12px', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+      >
+        로그아웃
+      </button>
+      </p>
 
+      {/* 3. 버튼 로직 수정 */}
       <button 
         className="board-btn" 
-        onClick={() => navigate('/board')}
+        onClick={onGoToBoard} // 👈 navigate 대신 이 함수 호출
+        style={{ padding: '10px 20px', marginBottom: '20px', cursor: 'pointer' }}
       >
         질문 게시판 가기 📢
       </button>
@@ -87,7 +94,7 @@ export default function Lobby({ user, onEnterRoom }) {
 
       {/* 📋 방 목록 섹션 */}
       <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px' }}>
-        <h3>🗺️ 나의 활성화된 생태계 목록</h3>
+        <h3>🗺️ 활성화된 생태계 목록</h3>
         {rooms.length === 0 ? (
           <div style={{ color: '#666', padding: '10px 0' }}>
             <p>아직 개설된 실제 DB 방이 목록에 없습니다. (새로고침 시 인메모리 create 초기화 현상)</p>
@@ -108,17 +115,6 @@ export default function Lobby({ user, onEnterRoom }) {
             ))}
           </div>
         )}
-
-        {/* 🚨 중요: 치트키 수동 점프 장치 */}
-        <hr style={{ marginTop: '20px', border: '0', borderTop: '1px dashed #ccc' }} />
-        <h4 style={{ color: '#d32f2f' }}>🚀 테스트 수동 점프 장치 (새로고침 구원용)</h4>
-        <p style={{ fontSize: '13px', color: '#666' }}>백엔드가 재부팅되었거나 방 목록이 비어있을 때, 방금 성공했던 그 소켓 번호 채널로 직통 워프합니다.</p>
-        <button 
-          onClick={() => onEnterRoom({ roomId: 6, roomName: "우리가 성공시킨 6번방", roomTheme: "OCEAN" })}
-          style={{ padding: '10px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          🐧 6번 펭귄방 강제 입장하기
-        </button>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ public class EcosystemSocketController {
             CritterLocationDto testCritter = new CritterLocationDto(
                 100L,                          // critterId
                 "홍칠이레서판다",                 // name
-                com.critter.critter_backend.domain.CreatureType.REDPANDA.name(), // species
+                com.critter.critter_backend.domain.CritterType.REDPANDA.name(), // species
                 400.0,                         // x
                 300.0,                         // y
                "IDLE",                        // status
@@ -45,7 +45,7 @@ public class EcosystemSocketController {
             java.util.List<CritterLocationDto> initialCritters = new java.util.ArrayList<>();
             initialCritters.add(testCritter);
 
-            memoryStorage.loadCreatures(roomId, initialCritters);
+            memoryStorage.loadCritters(roomId, initialCritters);
         }
     }
 }

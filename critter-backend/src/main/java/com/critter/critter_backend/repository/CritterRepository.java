@@ -1,10 +1,10 @@
 package com.critter.critter_backend.repository;
 
-import com.critter.critter_backend.entity.Creature;
+import com.critter.critter_backend.entity.Critter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface CreatureRepository extends JpaRepository<Creature, Long> {
+public interface CritterRepository extends JpaRepository<Critter, Long> {
     // 특정 방에 입장했을 때 그 방의 동물들을 긁어와서 메모리에 올려야
-    List<Creature> findByEcosystem_RoomId(Long roomId);
+    List<Critter> findByEcosystem_RoomId(Long roomId);
 }
