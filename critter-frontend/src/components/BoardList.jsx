@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { fetchBoards, createBoard } from '../api/boardApi';
 
 // 🆕 onSelectBoard props를 추가로 받아야 합니다!
-export default function BoardList({ user, onBackToLobby, onSelectBoard, onLogout }) {
+export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCreate, onLogout }) {
+
+  const styles = {
+    container: { padding: '20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'Arial, sans-serif' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
+    button: { backgroundColor: '#3498db', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer' },
+    boardItem: { border: '1px solid #eee', padding: '15px', borderRadius: '8px', marginBottom: '10px', cursor: 'pointer', transition: '0.2s' },
+    boardItemHover: { backgroundColor: '#f9f9f9' }
+  };
+
   const [boards, setBoards] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -40,31 +49,23 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onLogout
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>📢 질문 게시판</h2>
-      <button onClick={onBackToLobby}>🏠 로비로 돌아가기</button>
-      <button onClick={onLogout} style={{ marginLeft: '10px', color: 'red' }}>로그아웃 하기</button>
-
-      <div style={{ margin: '20px 0', border: '1px solid #ddd', padding: '15px' }}>
-        <input placeholder="제목" value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', marginBottom: '5px' }} />
-        <textarea placeholder="내용" value={content} onChange={(e) => setContent(e.target.value)} style={{ display: 'block', marginBottom: '10px' }} />
-        <button onClick={handleWrite}>글 등록하기</button>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h2>📢 질문 게시판</h2>
+        <div>
+          <button onClick={onBackToLobby} style={{ ...styles.button, backgroundColor: '#95a5a6' }}>🏠 로비</button>
+          <button onClick={onLogout} style={{ ...styles.button, backgroundColor: '#e74c3c', marginLeft: '10px' }}>로그아웃</button>
+        </div>
       </div>
 
-      <div>
-        {boards.map(board => (
-          // 🚨 핵심 수정: 클릭 시 onSelectBoard(ID)가 실행되도록 연결!
-          // cursor: 'pointer'를 추가해서 클릭 가능한 모양으로 만들었습니다.
-          <div 
-            key={board.boardId} 
-            onClick={() => onSelectBoard(board.boardId)} 
-            style={{ borderBottom: '1px solid #eee', padding: '10px', cursor: 'pointer' }}
-          >
-            <h3>{board.title}</h3>
-            <p>작성자: {board.writer?.nickname || "알수없음"}</p>
-          </div>
-        ))}
-      </div>
+      <button onClick={onGoToCreate} style={{ ...styles.button, marginBottom: '20px' }}>✏️ 글쓰기</button>
+      
+      {boards.map(board => (
+        <div key={board.boardId} onClick={() => onSelectBoard(board.boardId)} style={styles.boardItem}>
+          <h3 style={{ margin: '0 0 5px 0' }}>{board.title}</h3>
+          <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>작성자: {board.writer?.nickname || "알수없음"}</p>
+        </div>
+      ))}
     </div>
   );
 }

@@ -13,7 +13,7 @@ spring:
   # JPA / Hibernate 자동 테이블 생성 세팅
   jpa:
     hibernate:
-      ddl-auto: create     
+      ddl-auto: create
       # create : 서버 켤 때마다 테이블을 새로 밀고 만듦
       # update : 기존 테이블을 유지하며 변경사항만 반영
     properties:

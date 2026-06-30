@@ -2,12 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { fetchGuestbooks, postGuestbook } from '../api/guestbookApi';
+import { adoptCritterApi } from '../api/shopApi';
 import { getCritterImagePath } from '../constants/critterImages';
+import Shop from './Shop';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 
-export default function EcosystemRoom({ currentRoom, currentUser, onLeaveRoom }) {
+export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLeaveRoom }) {
   const [critters, setCritters] = useState([]);
   const [guestbooks, setGuestbooks] = useState([]); // 방명록
   const [newContent, setNewContent] = useState(''); // 입력창
@@ -122,7 +124,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, onLeaveRoom })
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
         <h3>🏞️ 현재 관찰 중: {roomId}번 생태계</h3>
-        {currentUser.userId === currentRoom.userId && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          gap: '10px'
+        }}>
+        {currentUser.userId === currentRoom.account.userId && (
           <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
             🛒 상점 열기
           </button>
@@ -130,22 +137,31 @@ export default function EcosystemRoom({ currentRoom, currentUser, onLeaveRoom })
         <button onClick={onLeaveRoom} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
           🚪 방 나가기
         </button>
+        </div>
       </div>
 
       {showShop && (
       <div style={{ position: 'fixed', top: '10%', left: '20%', width: '60%', zIndex: 1000 }}>
         <Shop 
-          //roomTheme={currentRoom.theme} 
-          userPoints={currentUser.points} 
-          onAdopt={(critter) => {
-            console.log("입양 시도:", critter);
-            // 여기서 백엔드 API 호출!
-            alert(`${critter.name} 입양 성공!`);
+          roomId={roomId}
+          currentUser={currentUser}
+          setCurrentUser={setUser}
+          currentRoom={currentRoom}
+          onClose={() => setShowShop(false)}
+          onAdopt={async (critter) => {
+            try {
+              await adoptCritterApi(roomId, currentUser.userId, critter);
+              const response = await fetch(`http://localhost:8080/api/users/${currentUser.userId}`);
+              const updatedUser = await response.json();
+              setUser(updatedUser);
+              alert(`${critter.name} 입양 성공!`);
+            } catch (error) {
+              alert("입양 실패: " + error.message);
+            }
           }}
-          onClose={() => setShowShop(false)} 
         />
       </div>
-    )}
+      )}
 
       <div style={{ display: 'flex', gap: '20px' }}>
         {/* 생태계 필드 */}
@@ -161,8 +177,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, onLeaveRoom })
           <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
             {guestbooks.map((gb, i) => <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || "알수없음"}:</strong> {gb.content}</p>)}
           </div>
-          <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} style={{ height: '60px', marginBottom: '10px' }} />
-          <button onClick={handleSendGuestbook} style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}>작성하기</button>
+          {currentUser.userId !== currentRoom.account.userId && (
+            <>
+              <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} style={{ height: '60px', marginBottom: '10px' }} />
+              <button onClick={handleSendGuestbook} style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}>작성하기</button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -177,6 +197,20 @@ function CritterRendering({ critter }) {
   const [useEmoji, setUseEmoji] = useState(false);
 
   const handleError = () => setUseEmoji(true);
+
+  const SCALE_MAP = {
+    OCTOPUS: 1.7,
+    TURTLE: 1.5,
+    PENGUIN: 4.0,
+    SQUIRREL: 2.0,
+    FOX: 1.0,
+    REDPANDA: 2.5,
+    RABBIT: 1.0,
+    DOG: 1.0,
+    CAT: 2.0
+  }
+
+  const scale = SCALE_MAP[critter.critterType] || 1.0;
 
   const EMOJI_MAP = {
     CAT: '🐈',
@@ -210,7 +244,13 @@ function CritterRendering({ critter }) {
           src={imagePath} 
           alt={critter.critterType} 
           onError={handleError} 
-          style={{ width: '40px', height: '40px' }} 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            transform: `scale(${scale})`,
+            objectFit: 'contain',
+            display: 'block' 
+          }}
         />
       )}
     </div>

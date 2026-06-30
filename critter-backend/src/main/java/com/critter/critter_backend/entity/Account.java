@@ -48,4 +48,8 @@ public class Account {
     @Builder.Default // 👈 빌더로 생성할 때 이 값을 기본으로 씀!
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 100")
     private Long point = 100L;
+
+    public void addPoint(Long amount) {
+        this.point += amount;
+    }
 }

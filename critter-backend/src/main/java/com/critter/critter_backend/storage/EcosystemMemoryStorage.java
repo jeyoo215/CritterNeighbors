@@ -63,7 +63,7 @@ public class EcosystemMemoryStorage {
         // 1. 방에 있는 동물 리스트를 가져와 (없으면 새로 만들어)
         List<CritterLocationDto> critters = roomCritterMap.computeIfAbsent(roomId, k -> new ArrayList<>());
     
-        // 2. 그 리스트에 펭귄 투입!
+        // 2. 그 리스트에  투입
         critters.add(critter);
         log.info("메모리 저장소: {}번 방에 생명체 투입 성공!", roomId);
     }

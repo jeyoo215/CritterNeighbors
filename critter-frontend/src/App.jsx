@@ -3,7 +3,8 @@ import AuthForm from './components/AuthForm';
 import Lobby from './components/Lobby';
 import EcosystemRoom from './components/EcosystemRoom';
 import BoardList from './components/BoardList';
-import BoardDetail from './components/BoardDetail'; // 🆕 상세 페이지 컴포넌트 임포트
+import BoardDetail from './components/BoardDetail';
+import BoardCreate from './components/BoardCreate';
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -19,12 +20,11 @@ export default function App() {
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // 3️⃣ [수정됨] 로그아웃 시 localStorage에서도 삭제
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    setCurrentView("LOBBY"); // 로비로 복귀
-    window.location.reload(); // 🚨 깔끔하게 새로고침 한 번 때려주는 게 제일 확실해!
+    setCurrentView("LOBBY");
+    window.location.reload();
   };
 
   // 1️⃣ 로그인 체크
@@ -38,6 +38,7 @@ export default function App() {
       <EcosystemRoom 
         currentRoom={currentRoom}
         currentUser={user}
+        setUser={setUser}
         onLeaveRoom={() => setCurrentView("LOBBY")} 
       />
     );
@@ -54,7 +55,7 @@ export default function App() {
     );
   }
 
-  // 게시판 목록 화면
+  // 게시판 목록
   if (currentView === "BOARD_LIST") {
     return (
       <BoardList 
@@ -64,15 +65,26 @@ export default function App() {
           setSelectedBoardId(id); 
           setCurrentView("BOARD_DETAIL");
         }}
+        onGoToCreate={() => setCurrentView("BOARD_CREATE")}
         onBackToLobby={() => setCurrentView("LOBBY")} 
       />
     );
   }
 
-  // 3️⃣ 기본 로비 화면
+  if (currentView === "BOARD_CREATE") {
+    return (
+      <BoardCreate 
+        user={user} 
+        onBackToList={() => setCurrentView("BOARD_LIST")} 
+      />
+    );
+  }
+
+  // 로비
   return (
     <Lobby 
       user={user}
+      setUser={setUser}
       onLogout={handleLogout}
       onEnterRoom={(data) => { setCurrentRoom(data); setCurrentView("ROOM"); }}
       onGoToBoard={() => setCurrentView("BOARD_LIST")} // 리스트로 이동

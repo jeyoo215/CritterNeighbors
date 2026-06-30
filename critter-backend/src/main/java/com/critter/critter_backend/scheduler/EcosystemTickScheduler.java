@@ -1,7 +1,5 @@
 package com.critter.critter_backend.scheduler;
 
-import com.critter.critter_backend.domain.CritterStatus;
-import com.critter.critter_backend.domain.CritterType;
 import com.critter.critter_backend.dto.CritterLocationDto;
 import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 import lombok.RequiredArgsConstructor;
@@ -26,23 +24,6 @@ public class EcosystemTickScheduler {
 
     @Scheduled(fixedRate = 33)
     public void processEcosystemTick() {
-        // 테스트용 더미
-        memoryStorage.addSession(1L, "FAKE_SESSION_1");
-        memoryStorage.addSession(2L, "FAKE_SESSION_2");
-
-        if (memoryStorage.getCrittersByRoom(2L).isEmpty()) {
-            java.util.List<CritterLocationDto> dummyList = new java.util.ArrayList<>();
-            dummyList.add(new CritterLocationDto(
-                100L,
-                "야호",
-                CritterType.DOG.name(), // 테스트를 위해 명세서에 있는 타입을 예시로 지정!
-                400.0, 300.0,
-                CritterStatus.IDLE.name(),
-                1.0, 1.0
-            ));
-            memoryStorage.loadCritters(2L, dummyList);
-        }
-        // 테스트용 더미
 
         Set<Long> activeRoomIds = memoryStorage.getActiveRoomIds();
         if (activeRoomIds.isEmpty()) return;

@@ -18,11 +18,11 @@ public class EcosystemController {
 
     private final EcosystemService ecosystemService;
 
-    /**
-     * 🚪 방 만들기 API
-     */
+    /*
+        방 만들기 API
+    */
     @PostMapping
-    public ResponseEntity<Ecosystem> createRoom(@RequestBody Map<String, String> requestBody, HttpSession session) {
+    public ResponseEntity<Ecosystem> createRoom(@RequestBody Map<String, String> request, HttpSession session) {
         // 로그인 세션에서 USER_ID 추출
         // 테스트용 임시 제거
         // Long userId = (Long) session.getAttribute("USER_ID");
@@ -30,33 +30,37 @@ public class EcosystemController {
         //     return ResponseEntity.status(401).build(); // 로그인 안 됨 에러
         // }
 
-        // 임시 테스트용 가상 유저 ID 1번 주입 (또는 아무 숫자나)
-        Long userId = 1L;
+        // 테스트용으로 프론트에서 받아오기
+        Long userId = Long.valueOf(request.get("userId").toString());
         // 테스트
 
         Ecosystem newRoom = ecosystemService.createRoom(
                 userId,
-                requestBody.get("roomName"),
-                requestBody.get("roomTheme")
+                request.get("roomName"),
+                request.get("roomTheme")
         );
 
         return ResponseEntity.ok(newRoom);
     }
 
-    /**
-     * 🔍 내 방 목록 조회 API
-     */
+    /*
+        내 방 목록 조회 API
+    */
     @GetMapping("/my")
-    public ResponseEntity<List<Ecosystem>> getMyRooms(HttpSession session) {
-        // 테스트용 주석
-        // Long userId = (Long) session.getAttribute("USER_ID");
-        // if (userId == null) {
-        //     return ResponseEntity.status(401).build();
-        // }
-        Long userId = 1L;
-        // 테스트용
+    public ResponseEntity<List<Ecosystem>> getMyRooms(@RequestParam Long userId, HttpSession session) {
 
         List<Ecosystem> myRooms = ecosystemService.getRoomsByUserId(userId);
         return ResponseEntity.ok(myRooms);
+    }
+
+    /*
+        남의 방
+    */
+    @GetMapping("/random")
+    public ResponseEntity<List<Ecosystem>> getRandomRooms(@RequestParam("userId") Long userId) {
+        
+        // 💡 수정됨: limit 파라미터를 빼고 userId만 넘김!
+        List<Ecosystem> randomRooms = ecosystemService.getRandomRoomsExcludingUser(userId);
+        return ResponseEntity.ok(randomRooms);
     }
 }

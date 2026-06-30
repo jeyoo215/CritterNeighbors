@@ -1,7 +1,7 @@
 package com.critter.critter_backend.controller;
 
 import com.critter.critter_backend.entity.Account;
-import com.critter.critter_backend.service.UserService;
+import com.critter.critter_backend.service.AccountService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import java.util.Map;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // 👈 리액트 연동용 CORS 허용 및 세션 쿠키 허용 설정!
-public class UserController {
+public class AccountController {
 
-    private final UserService userService;
+    private final AccountService userService;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Account account) {
