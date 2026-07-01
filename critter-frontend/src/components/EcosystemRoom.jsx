@@ -72,9 +72,27 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLea
     }
   };
 
-  useEffect(() => {
-    loadGuestbooks(); // 방 입장 시 방명록 로드
+  const handleCritterClick = (critter, e) => {
+    if (!stompClientRef.current || !stompClientRef.current.connected) return;
+  
+    // 마우스 위치 전달해서 서버가 방향을 계산하게 함
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
 
+    stompClientRef.current.publish({
+      destination: `/app/ecosystem/${roomId}/interact`, // 서버에 컨트롤러 메서드 매핑 주소
+      body: JSON.stringify({ 
+        critterId: critter.critterId, 
+        action: "CLICK",
+        mouseX: mouseX, 
+        mouseY: mouseY 
+      })
+    });
+  };
+
+  useEffect(() => {
+    loadGuestbooks();
     const socket = new SockJS('http://localhost:8080/ws-ecosystem');
     const client = new Client({
       webSocketFactory: () => socket,
@@ -83,16 +101,16 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLea
     });
 
     client.onConnect = () => {
+      // 입장 알림
       client.publish({
         destination: `/app/ecosystem/${roomId}/join`,
         body: JSON.stringify({ userId: userId, nickname: currentUser.nickname })
       });
 
-      setTimeout(() => {
-        client.subscribe(`/topic/ecosystem/${roomId}`, (message) => {
-          if (message.body) setCritters(JSON.parse(message.body));
-        });
-      }, 500);
+      // 데이터 구독
+      client.subscribe(`/topic/ecosystem/${roomId}`, (message) => {
+        if (message.body) setCritters(JSON.parse(message.body));
+      });
     };
 
     client.activate();
@@ -103,27 +121,11 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLea
     };
   }, [roomId, userId, currentUser.nickname]);
 
-  const handleMouseMove = (e) => {
-    if (!stompClientRef.current || !stompClientRef.current.connected) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    critters.forEach((critter) => {
-      const distance = Math.hypot(critter.x - mouseX, critter.y - mouseY);
-      if (distance < 100 && critter.status !== 'PANIC') {
-        stompClientRef.current.publish({
-          destination: '/app/mouse-move',
-          body: JSON.stringify({ roomId, critterId: critter.critterId, status: 'PANIC' }),
-        });
-      }
-    });
-  };
 
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-        <h3>🏞️ 현재 관찰 중: {roomId}번 생태계</h3>
+        <h3>🏞️현재 관찰 중: {currentRoom.account.nickname}님의 {currentRoom.roomTheme} 생태계</h3>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'flex-end', 
@@ -165,15 +167,19 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLea
 
       <div style={{ display: 'flex', gap: '20px' }}>
         {/* 생태계 필드 */}
-        <div onMouseMove={handleMouseMove} style={backgroundStyle}>
+        <div style={backgroundStyle}>
           {critters.map((critter) => (
-            <CritterRendering key={critter.critterId} critter={critter} />
+            <CritterRendering 
+              key={critter.critterId} 
+              critter={critter} 
+              onClick={(e) => handleCritterClick(critter, e)}
+            />
           ))}
         </div>
 
         {/* 방명록 UI 영역 */}
         <div style={{ width: '300px', height: `${CANVAS_HEIGHT}px`, backgroundColor: '#f4f4f4', padding: '15px', borderRadius: '8px', display: 'flex', flexDirection: 'column' }}>
-          <h4>💬 방명록</h4>
+          <h4>💬방명록</h4>
           <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
             {guestbooks.map((gb, i) => <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || "알수없음"}:</strong> {gb.content}</p>)}
           </div>
@@ -192,7 +198,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, onLea
 
 // 이미지
 // EcosystemRoom.jsx 파일 맨 아래
-function CritterRendering({ critter }) {
+function CritterRendering({ critter, onClick }) {
   const imagePath = getCritterImagePath(critter.critterType, critter.status);
   const [useEmoji, setUseEmoji] = useState(false);
 
@@ -204,7 +210,7 @@ function CritterRendering({ critter }) {
     PENGUIN: 4.0,
     SQUIRREL: 2.0,
     FOX: 2.0,
-    REDPANDA: 2.5,
+    REDPANDA: 2.0,
     RABBIT: 1.0,
     DOG: 1.0,
     CAT: 2.0
@@ -225,18 +231,21 @@ function CritterRendering({ critter }) {
   };
 
   return (
-    <div style={{ 
-      position: 'absolute', 
-      left: `${critter.x}px`, 
-      top: `${critter.y}px`, 
-      transform: 'translate(-50%, -50%)',
-      transition: 'left 0.033s linear, top 0.033s linear',
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
+    <div
+      onClick={onClick}
+      style={{ 
+        position: 'absolute', 
+        left: `${critter.x}px`, 
+        top: `${critter.y}px`, 
+        transform: 'translate(-50%, -50%)',
+        transition: 'left 0.033s linear, top 0.033s linear',
+        width: '40px',
+        height: '40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+
       {useEmoji ? (
         <div style={{ fontSize: '30px' }}>{EMOJI_MAP[critter.critterType] || '🐾'}</div>
       ) : (

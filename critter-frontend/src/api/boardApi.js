@@ -13,7 +13,7 @@ export const fetchBoardDetail = (id) => axios.get(`${API_BASE}/${id}`);
 
 // 이전글 다음글 조회
 export const fetchNeighbors = (boardId) => {
-  return api.get(`${API_BASE}/${boardId}/neighbors`);
+  return axios.get(`${API_BASE}/${boardId}/neighbors`);
 };
 
 // 댓글 등록

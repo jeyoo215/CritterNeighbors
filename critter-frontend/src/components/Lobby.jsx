@@ -80,9 +80,8 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h2>🏢 생태계 통합 로비 센터</h2>
-      <p>👤 <strong>{user.nickname}</strong>
-      <strong> </strong>
+      <h2>🏢Critter Lobby🏢</h2>
+      <p>👤<strong>{user.nickname} </strong>
       <button 
         onClick={onLogout} 
         style={{ padding: '8px 12px', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
@@ -100,9 +99,9 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
         질문 게시판 가기 📢
       </button>
 
-      {/* 🛠️ 새 방 만들기 섹션 */}
+      {/* 새 방 만들기 섹션 */}
       <div style={{ background: '#e3f2fd', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-        <h3>🛠️ 새 생태계 서식지 개설</h3>
+        <h3>🛠️새로운 생태계 개설🛠️</h3>
   
         <div style={{ marginBottom: '15px', fontSize: '14px', color: '#555' }}>
           <p>보유 포인트: <strong>{user.point}P</strong></p>
@@ -144,7 +143,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
       {/* 📋 방 목록 섹션 */}
       <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px' }}>
-        <h3>🗺️ 활성화된 생태계 목록</h3>
+        <h3>🗺️내가 운영 중인 방🗺️</h3>
         {myRooms.length === 0 ? (
           <div style={{ color: '#666', padding: '10px 0' }}>
             <p>아직 개설된 생태계가 존재하지 않습니다.</p>
@@ -169,7 +168,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
       {/* 🌐 추천 생태계 목록 섹션 */}
       <div style={{ background: '#fff3e0', padding: '20px', borderRadius: '8px', marginTop: '20px', border: '1px solid #ffe0b2' }}>
-        <h3>🌐 여행 가기</h3>
+        <h3>🌐여행 가기🌐</h3>
         {recommendedRooms.length === 0 ? (
           <div style={{ color: '#666', padding: '10px 0' }}>
             <p>현재 여행할 수 있는 다른 생태계가 없습니다.</p>

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { 
   fetchBoardDetail, 
+  fetchNeighbors,
   getCommentsByBoard, 
   postComment, 
   deleteBoard, 
   deleteComment, 
   updateBoard, 
-  updateComment 
+  updateComment
 } from '../api/boardApi';
 
-export default function BoardDetail({ boardId, user, onBackToList }) {
+export default function BoardDetail({ boardId, setBoardId, user, onBackToList }) {
   // 게시글
   const [board, setBoard] = useState(null);
   // 이전글 다음글
@@ -116,17 +117,17 @@ export default function BoardDetail({ boardId, user, onBackToList }) {
       <div style={{ marginTop: '20px', borderTop: '1px solid #eee', padding: '10px 0' }}>
         {neighbors.prev && (
           <div style={{ marginBottom: '5px' }}>
-            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>이전글: </span>
+            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>◀ 이전글: </span>
             <button onClick={() => setBoardId(neighbors.prev.boardId)} style={{ border: 'none', background: 'none', color: '#2196F3', cursor: 'pointer' }}>
-              ◀ 이전글: {neighbors.prev.title}
+              {neighbors.prev.title}
             </button>
           </div>
         )}
         {neighbors.next && (
           <div>
-            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>다음글: </span>
+            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>▶ 다음글: </span>
             <button onClick={() => setBoardId(neighbors.next.boardId)} style={{ border: 'none', background: 'none', color: '#2196F3', cursor: 'pointer' }}>
-              ▶ 다음글: {neighbors.next.title}
+              {neighbors.next.title}
             </button>
           </div>
         )}

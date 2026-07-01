@@ -33,43 +33,63 @@ public class EcosystemTickScheduler {
             if (critters.isEmpty()) continue;
 
             for (CritterLocationDto critter : critters) {
-                
-                if (Math.random() < 0.01) { 
-                    double newAngle = Math.random() * 2 * Math.PI;
-                    double currentSpeed = Math.sqrt(critter.getVx() * critter.getVx() + critter.getVy() * critter.getVy());
-                    critter.setVx(Math.cos(newAngle) * currentSpeed);
-                    critter.setVy(Math.sin(newAngle) * currentSpeed);
+
+                double vMag = Math.sqrt(critter.getVx() * critter.getVx() + critter.getVy() * critter.getVy());
+                if (vMag > 5.0) { // 패닉 속도 제한
+                    critter.setVx(critter.getVx() * 0.9); // 감속
+                    critter.setVy(critter.getVy() * 0.9);
                 }
 
-                // 동물 종류(Type)에 따른 이동 속도 가중치 부여 (차별화된 AI)
-                double speedMultiplier = 1.0;
+                if ("IDLE".equals(critter.getStatus()) && Math.random() < 0.007) {
+                    critter.setStatus("SHELTER");
+                }
+
+                double speedMultiplier = 0.6;
                 String type = critter.getCritterType();
-                
                 if ("RABBIT".equals(type) || "FOX".equals(type)) {
-                    speedMultiplier = 1.5; 
+                    speedMultiplier = 1.0;
                 } else if ("TURTLE".equals(type)) {
-                    speedMultiplier = 0.5; 
+                    speedMultiplier = 0.5;
                 }
+                
+                if ("SHELTER".equals(critter.getStatus())) {
+                    // 확률적으로 다시 IDLE로 복귀 (예: 0.5% 확률로 복귀)
+                    if (Math.random() < 0.005) {
+                        critter.setStatus("IDLE");
+                    }
+                }
+                else if ("PANIC".equals(critter.getStatus())) {
+                    if (Math.random() < 0.20) { 
+                        double newAngle = Math.random() * 2 * Math.PI;
+                        double panicSpeed = 8.0;
+                        critter.setVx(Math.cos(newAngle) * panicSpeed);
+                        critter.setVy(Math.sin(newAngle) * panicSpeed);
+                    }                        
 
-                // 행동 패턴(Status)에 따른 AI 물리 분기 연산
-                // 프론트에서 마우스 접근을 감지해 상태를 PANIC이나 SHELTER로 바꿨다고 가정했을 때의 연산이야.
-                if ("PANIC".equals(critter.getStatus())) {
-                    critter.setX(critter.getX() + critter.getVx() * speedMultiplier * 2.0);
-                    critter.setY(critter.getY() + critter.getVy() * speedMultiplier * 2.0);
-                } else if ("SHELTER".equals(critter.getStatus())) {
-                    // 정지 후 숨기 패턴 (이동하지 않음)
-                } else {
-                    // 일반 IDLE 상태: 지정된 기본 속도 가중치로 이동
+                    critter.setX(critter.getX() + critter.getVx());
+                    critter.setY(critter.getY() + critter.getVy());
+
+                    if (Math.random() < 0.005) {
+                        critter.setStatus("IDLE"); 
+                    }
+                } 
+                else {
+                    if (Math.random() < 0.01) { 
+                        double newAngle = Math.random() * 2 * Math.PI;
+                        double currentSpeed = Math.sqrt(critter.getVx() * critter.getVx() + critter.getVy() * critter.getVy());
+                        critter.setVx(Math.cos(newAngle) * Math.max(1.0, currentSpeed));
+                        critter.setVy(Math.sin(newAngle) * Math.max(1.0, currentSpeed));
+                    }
                     critter.setX(critter.getX() + critter.getVx() * speedMultiplier);
                     critter.setY(critter.getY() + critter.getVy() * speedMultiplier);
                 }
 
-                // 🔄 벽 튕기기 물리 연산 코어
-                if (critter.getX() <= 10 || critter.getX() >= CANVAS_WIDTH-10) {
+                // 벽 튕기기 물리 연산 코어
+                if (critter.getX() <= 20 || critter.getX() >= CANVAS_WIDTH-20) {
                     critter.setVx(-critter.getVx());
                     critter.setX(Math.max(0, Math.min(critter.getX(), CANVAS_WIDTH)));
                 }
-                if (critter.getY() <= 10 || critter.getY() >= CANVAS_HEIGHT-10) {
+                if (critter.getY() <= 20 || critter.getY() >= CANVAS_HEIGHT-20) {
                     critter.setVy(-critter.getVy());
                     critter.setY(Math.max(0, Math.min(critter.getY(), CANVAS_HEIGHT)));
                 }
