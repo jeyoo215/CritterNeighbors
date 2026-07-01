@@ -7,19 +7,19 @@ import com.critter.critter_backend.entity.CritterTemplate;
 import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.repository.CritterTemplateRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
+// final로 선언된 녀석들을 자동으로 파라미터로 받는 생성자 생성
 public class DataInitializer {
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private CritterTemplateRepository critterTemplateRepository;
+    private final AccountRepository accountRepository;
+    private final CritterTemplateRepository critterTemplateRepository;
 
     @Bean
     public CommandLineRunner initData() {

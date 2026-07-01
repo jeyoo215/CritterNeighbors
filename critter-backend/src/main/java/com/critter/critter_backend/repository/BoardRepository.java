@@ -7,4 +7,10 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Long> {
     // 질문글 테이블 전체를 최신 등록일 순으로 정렬해서 가져오는 쿼리
     List<Board> findAllByOrderByCreatedAtDesc();
+
+    // 다음 글
+    Board findFirstByBoardIdGreaterThanOrderByBoardIdAsc(Long boardId);
+
+    // 이전 글
+    Board findFirstByBoardIdLessThanOrderByBoardIdDesc(Long boardId);
 }

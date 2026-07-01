@@ -46,7 +46,7 @@ public class EcosystemTickScheduler {
                 String type = critter.getCritterType();
                 
                 if ("RABBIT".equals(type) || "FOX".equals(type)) {
-                    speedMultiplier = 2.0; 
+                    speedMultiplier = 1.5; 
                 } else if ("TURTLE".equals(type)) {
                     speedMultiplier = 0.5; 
                 }

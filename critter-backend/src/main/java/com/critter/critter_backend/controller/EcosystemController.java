@@ -19,7 +19,8 @@ public class EcosystemController {
     private final EcosystemService ecosystemService;
 
     /*
-        방 만들기 API
+        방 생성
+        POST
     */
     @PostMapping
     public ResponseEntity<Ecosystem> createRoom(@RequestBody Map<String, String> request, HttpSession session) {
@@ -44,7 +45,8 @@ public class EcosystemController {
     }
 
     /*
-        내 방 목록 조회 API
+        내 방 목록 조회
+        GET
     */
     @GetMapping("/my")
     public ResponseEntity<List<Ecosystem>> getMyRooms(@RequestParam Long userId, HttpSession session) {
@@ -55,11 +57,11 @@ public class EcosystemController {
 
     /*
         남의 방
+        GET
     */
     @GetMapping("/random")
     public ResponseEntity<List<Ecosystem>> getRandomRooms(@RequestParam("userId") Long userId) {
         
-        // 💡 수정됨: limit 파라미터를 빼고 userId만 넘김!
         List<Ecosystem> randomRooms = ecosystemService.getRandomRoomsExcludingUser(userId);
         return ResponseEntity.ok(randomRooms);
     }

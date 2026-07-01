@@ -203,7 +203,7 @@ function CritterRendering({ critter }) {
     TURTLE: 1.5,
     PENGUIN: 4.0,
     SQUIRREL: 2.0,
-    FOX: 1.0,
+    FOX: 2.0,
     REDPANDA: 2.5,
     RABBIT: 1.0,
     DOG: 1.0,

@@ -17,18 +17,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Component
 public class EcosystemMemoryStorage {
 
-    // 🟢 통합된 CritterLocationDto 리스트를 사용하도록 수정!
+    // 통합된 CritterLocationDto 리스트를 사용하도록 수정!
     private final Map<Long, List<CritterLocationDto>> roomCritterMap = new ConcurrentHashMap<>();
     private final Map<Long, Set<String>> roomSessionMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> sessionToRoomMap = new ConcurrentHashMap<>();
 
     public void addSession(Long roomId, String sessionId) {
         roomSessionMap.computeIfAbsent(roomId, k -> new CopyOnWriteArraySet<>()).add(sessionId);
+        sessionToRoomMap.put(sessionId, roomId);
     }
 
     public void removeSession(Long roomId, String sessionId) {
         Set<String> sessions = roomSessionMap.get(roomId);
         if (sessions != null) {
             sessions.remove(sessionId);
+            sessionToRoomMap.remove(sessionId); 
+            
             if (sessions.isEmpty()) {
                 roomSessionMap.remove(roomId);
             }
@@ -42,6 +46,10 @@ public class EcosystemMemoryStorage {
 
     public Set<Long> getActiveRoomIds() {
         return roomSessionMap.keySet();
+    }
+
+    public Long getRoomIdBySession(String sessionId) {
+        return sessionToRoomMap.get(sessionId);
     }
 
     // 🟢 여기도 CritterLocationDto로 받아주기!

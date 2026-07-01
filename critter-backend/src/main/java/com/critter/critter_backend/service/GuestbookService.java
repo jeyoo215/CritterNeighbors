@@ -22,9 +22,7 @@ public class GuestbookService {
     private final EcosystemRepository ecosystemRepository;
     private final AccountRepository accountRepository;
 
-    /**
-     * 🟢 방명록 비비 비동기 등록 (검증 제약 조건 포함)
-     */
+    // 방명록 비동기 등록
     @Transactional
     public Guestbook createGuestbook(Long roomId, Long writerId, String content) {
         // 1. 방 존재 여부 및 방 주인 ID 조회

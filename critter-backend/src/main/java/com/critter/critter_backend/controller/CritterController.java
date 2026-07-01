@@ -73,10 +73,10 @@ public class CritterController {
     
         Account updatedUser = accountRepository.findById(userId).orElseThrow();
     
-        // 입양한 크리처 정보와 최신 유저 정보를 같이 넘겨주기 위해 Map으로 감싸자
+        // 입양한 크리처 정보와 최신 유저 정보를 같이 넘겨주기 위해 Map으로
         Map<String, Object> response = new HashMap<>();
         response.put("critter", savedCritter);
-        response.put("user", updatedUser); // 👈 이게 있어야 프론트가 포인트를 갱신해!
+        response.put("user", updatedUser); // 이게 있어야 프론트가 포인트를 갱신해!
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

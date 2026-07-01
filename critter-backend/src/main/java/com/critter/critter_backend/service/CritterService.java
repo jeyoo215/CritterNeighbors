@@ -19,9 +19,7 @@ public class CritterService {
     private final CritterRepository critterRepository;
     private final EcosystemRepository ecosystemRepository;
 
-    /*
-     * 상점 동물 분양 입주 (비즈니스 검증 규칙 포함)
-    */
+    // 동물 분양
     @Transactional
     public Critter adoptCritter(Long roomId, String critterName, CritterType critterType) {
         // 1. 분양할 방 조회

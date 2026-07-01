@@ -30,17 +30,22 @@ public class WebSocketEventListener {
         String sessionId = headerAccessor.getSessionId();
         
         String roomIdStr = headerAccessor.getFirstNativeHeader("roomId");
-        Long roomId = (roomIdStr != null) ? Long.valueOf(roomIdStr) : 1L;
+        
+        if (roomIdStr == null) {
+            log.warn("[경고] 방 번호(roomId) 없이 소켓 연결 시도! 세션ID: {}", sessionId);
+            return;
+        }
 
+        Long roomId = Long.valueOf(roomIdStr);
         memoryStorage.addSession(roomId, sessionId);
-        log.info("🔌 [소켓 연결] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
+        log.info("[소켓 연결] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
 
         if (memoryStorage.getCrittersByRoom(roomId).isEmpty()) {
             List<Critter> dbCritters = critterRepository.findByEcosystem_RoomId(roomId);
             List<CritterLocationDto> memoryCritters = new ArrayList<>();
 
             for (Critter c : dbCritters) {
-                // 🟢 [에러 진압 1] c.getStatus() 뒤에 .name()을 붙여 DTO(String) 규격에 완벽 일치!
+                // c.getStatus() 뒤에 .name()을 붙여 DTO(String) 규격에 완벽 일치!
                 memoryCritters.add(new CritterLocationDto(
                         c.getCritterId(),
                         c.getCritterName(),
@@ -53,7 +58,7 @@ public class WebSocketEventListener {
             }
             
             memoryStorage.loadCritters(roomId, memoryCritters);
-            log.info("💾 [On-Demand 로딩] DB에서 {}마리의 동물을 방 {}번 메모리에 적재 완료!", memoryCritters.size(), roomId);
+            log.info("[On-Demand 로딩] DB에서 {}마리의 동물을 방 {}번 메모리에 적재 완료!", memoryCritters.size(), roomId);
         }
     }
 
@@ -62,14 +67,17 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
 
-        // 임시 테스트용 1번 방 지정 (추후 세션별 방 매핑 필요)
-        Long roomId = 1L; 
+        Long roomId = memoryStorage.getRoomIdBySession(sessionId);
         
-        // 🟢 [에러 진압 2] 네 기존 매개변수 규격 (roomId, sessionId)에 맞춰서 호출!
-        memoryStorage.removeSession(roomId, sessionId); 
-        log.info("❌ [소켓 단절] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
+        if (roomId == null) {
+            log.warn("[소켓 단절] 세션 ID {}에 매핑된 방을 찾을 수 없습니다.", sessionId);
+            return;
+        }
 
-        // 🟢 [에러 진압 3] 네 순정 메서드 !hasPassengers(roomId) 로 비어있는지 체크!
+        memoryStorage.removeSession(roomId, sessionId);
+        log.info("[소켓 단절] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
+
+        // !hasPassengers(roomId) : 방이 비어있는지
         if (!memoryStorage.hasPassengers(roomId)) {
             List<CritterLocationDto> memoryCritters = memoryStorage.getCrittersByRoom(roomId);
 
@@ -80,9 +88,9 @@ public class WebSocketEventListener {
                 });
             }
 
-            // 🟢 [에러 진압 4] 네 순정 메서드 unloadRoom(roomId) 호출해서 메모리 청소!
+            // unloadRoom(roomId) 호출해서 메모리 청소
             memoryStorage.unloadRoom(roomId);
-            log.info("♻️ [동적 메모리 해제] 방 {}번에 접속자가 없어 영속화 후 언로드 완료!", roomId);
+            log.info("[동적 메모리 해제] 방 {}번에 접속자가 없어 영속화 후 언로드 완료!", roomId);
         }
     }
 }

@@ -18,9 +18,7 @@ public class EcosystemService {
     private final EcosystemRepository ecosystemRepository;
     private final AccountRepository accountRepository;
 
-    /*
-        🟢 [명세서 스펙] 유저별 독립된 생태계 방 개설
-    */
+    // 유저 별 생태계 생성
     @Transactional
     public Ecosystem createRoom(Long userId, String roomName, String themeStr) {
         // 1. 방을 개설할 유저 검증
@@ -55,17 +53,15 @@ public class EcosystemService {
         return ecosystemRepository.save(ecosystem);
     }
 
-    /*
-        내 방
-    */
+
+    // 내 방
     @Transactional(readOnly = true)
     public List<Ecosystem> getRoomsByUserId(Long userId) {
         return ecosystemRepository.findByAccount_UserId(userId);
     }
 
-    /*
-        남의 방
-    */
+
+    // 남의 방
     @Transactional(readOnly = true)
     public List<Ecosystem> getRandomRoomsExcludingUser(Long userId) {
         // 레포지토리에서 쿼리로 뽑아온 5개를 그대로 반환!

@@ -19,8 +19,8 @@ public class ActionLogService {
     private final CritterRepository critterRepository;
 
     /*
-     * 동물의 상태 변화 및 행동 로그 비비 비동기 적재
-     * @Async가 붙으면 이 메서드는 메인 소켓 스레드가 아닌, 별도의 Thread Pool에서 독립적으로 실행됨!
+        동물의 상태 변화 및 행동 로그 비비 비동기 적재
+        @Async가 붙으면 이 메서드는 메인 소켓 스레드가 아닌, 별도의 Thread Pool에서 독립적으로 실행됨!
     */
     @Async
     @Transactional

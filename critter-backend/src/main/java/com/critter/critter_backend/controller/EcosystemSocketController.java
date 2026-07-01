@@ -1,6 +1,5 @@
 package com.critter.critter_backend.controller;
 
-import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -9,12 +8,6 @@ import java.util.Map;
 
 @Controller
 public class EcosystemSocketController {
-
-    private final EcosystemMemoryStorage memoryStorage;
-
-    public EcosystemSocketController(EcosystemMemoryStorage memoryStorage) {
-        this.memoryStorage = memoryStorage;
-    }
 
     @MessageMapping("/ecosystem/{roomId}/join")
     public void handleUserJoin(

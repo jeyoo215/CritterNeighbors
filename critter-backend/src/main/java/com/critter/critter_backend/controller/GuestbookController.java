@@ -17,13 +17,19 @@ public class GuestbookController {
 
     private final GuestbookService guestbookService;
 
-    // 🔍 방명록 조회: GET /api/guestbooks/1
+    /*
+        방명록 조회
+        GET /api/guestbooks/1
+    */
     @GetMapping("/api/ecosystems/{roomId}/guestbook")
     public ResponseEntity<List<Guestbook>> getGuestbookList(@PathVariable Long roomId) {
         return ResponseEntity.ok(guestbookService.getGuestbooksByRoom(roomId));
     }
 
-    // ✍️ 방명록 작성: POST /api/guestbooks/1
+    /*
+        방명록 작성
+        POST /api/guestbooks/1
+    */
     @PostMapping("/api/ecosystems/{roomId}/guestbook")
     public ResponseEntity<Guestbook> createGuestbook(
             @PathVariable Long roomId,
