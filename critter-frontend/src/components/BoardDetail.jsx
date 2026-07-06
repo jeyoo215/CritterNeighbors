@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
+import { useTranslation } from 'react-i18next';
 import { 
   fetchBoardDetail, 
   fetchNeighbors,
@@ -26,6 +27,8 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editCommentContent, setEditCommentContent] = useState('');
 
+  const { t } = useTranslation('board');
+
   const loadAllData = async () => {
     try {
         const boardRes = await fetchBoardDetail(boardId);
@@ -46,7 +49,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
 
   // 핸들러 함수들
   const handleCommentSubmit = async () => {
-    if (!comment) return alert("댓글 내용을 입력하세요.");
+    if (!comment) return alert(t('detail.alert.content_error'));
     await postComment(boardId, { writerId: user.userId, content: comment });
     if (refreshUser) {
         await refreshUser(); 
@@ -56,7 +59,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
   };
 
   const handleDeleteBoard = async () => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm(t('detail.confirm_delete'))) return;
     await deleteBoard(boardId);
     onBackToList();
   };
@@ -68,7 +71,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm(t('detail.confirm_delete'))) return;
     await deleteComment(commentId);
     loadAllData();
   };
@@ -84,13 +87,15 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
     loadAllData();
   };
 
-  if (!board) return <div>데이터 로딩 중...</div>;
+  if (!board) return <div>{t('detail.data_load')}</div>;
 
   const btnStyle = { padding: '6px 12px', margin: '0 4px', cursor: 'pointer', borderRadius: '4px', border: 'none' };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <button onClick={onBackToList} style={{ marginBottom: '20px', ...btnStyle, background: '#eee' }}>⬅️ 목록으로</button>
+      <button onClick={onBackToList} style={{ marginBottom: '20px', ...btnStyle, background: '#eee' }}>
+        {t('detail.back_to_list')}
+      </button>
       
       {/* 1. 게시글 영역 */}
       <div style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '20px' }}>
@@ -99,19 +104,29 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
             <input value={editForm.title} onChange={(e) => setEditForm({...editForm, title: e.target.value})} style={{ width: '100%', padding: '10px', fontSize: '18px', marginBottom: '10px' }} />
             <textarea value={editForm.content} onChange={(e) => setEditForm({...editForm, content: e.target.value})} style={{ width: '100%', height: '150px', padding: '10px' }} />
             <div style={{ marginTop: '10px' }}>
-              <button onClick={async () => { await updateBoard(boardId, editForm); setIsEditing(false); loadAllData(); }} style={{ ...btnStyle, background: '#4CAF50', color: 'white' }}>저장</button>
-              <button onClick={() => setIsEditing(false)} style={{ ...btnStyle }}>취소</button>
+              <button onClick={async () => { await updateBoard(boardId, editForm); setIsEditing(false); loadAllData(); }} style={{ ...btnStyle, background: '#4CAF50', color: 'white' }}>
+                {t('detail.btn_save')}
+              </button>
+              <button onClick={() => setIsEditing(false)} style={{ ...btnStyle }}>
+                {t('detail.btn_cancel')}
+              </button>
             </div>
           </div>
         ) : (
           <div>
             <h2 style={{ margin: '0 0 10px 0' }}>{board.title}</h2>
-            <p style={{ color: '#888', fontSize: '14px' }}>작성자: {board.writer?.nickname}</p>
+            <p style={{ color: '#888', fontSize: '14px' }}>
+              {t('list.writer', { nickname: board.writer?.nickname || t('list.unknown_writer') })}
+            </p>
             <div style={{ padding: '20px', background: '#fcfcfc', borderRadius: '8px', minHeight: '100px', margin: '20px 0' }}>{board.content}</div>
             {user && user.userId === board.writer?.userId && (
               <div style={{ textAlign: 'right' }}>
-                <button onClick={() => { setEditForm({title: board.title, content: board.content}); setIsEditing(true); }} style={btnStyle}>수정</button>
-                <button onClick={handleDeleteBoard} style={{ ...btnStyle, background: '#ff4d4f', color: 'white' }}>삭제</button>
+                <button onClick={() => { setEditForm({title: board.title, content: board.content}); setIsEditing(true); }} style={btnStyle}>
+                  {t('detail.btn_edit')}
+                </button>
+                <button onClick={handleDeleteBoard} style={{ ...btnStyle, background: '#ff4d4f', color: 'white' }}>
+                  {t('detail.btn_cancel')}
+                </button>
               </div>
             )}
           </div>
@@ -121,7 +136,9 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
       <div style={{ marginTop: '20px', borderTop: '1px solid #eee', padding: '10px 0' }}>
         {neighbors.prev && (
           <div style={{ marginBottom: '5px' }}>
-            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>◀ 이전글: </span>
+            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>
+              {t('detail.prev_board')}
+            </span>
             <button onClick={() => setBoardId(neighbors.prev.boardId)} style={{ border: 'none', background: 'none', color: '#2196F3', cursor: 'pointer' }}>
               {neighbors.prev.title}
             </button>
@@ -129,7 +146,9 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
         )}
         {neighbors.next && (
           <div>
-            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>▶ 다음글: </span>
+            <span style={{ fontWeight: 'bold', color: '#2196F3' }}>
+              {t('detail.next_board')}
+            </span>
             <button onClick={() => setBoardId(neighbors.next.boardId)} style={{ border: 'none', background: 'none', color: '#2196F3', cursor: 'pointer' }}>
               {neighbors.next.title}
             </button>
@@ -139,17 +158,19 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
 
       {/* 2. 댓글 영역 */}
       <div style={{ marginTop: '40px', borderTop: '2px solid #eee', paddingTop: '20px' }}>
-        <h4 style={{ marginBottom: '15px', color: '#333' }}>💬 댓글 {comments.length}개</h4>
+        <h4 style={{ marginBottom: '15px', color: '#333' }}>
+          {t('detail.comment_title', {count: comments.length})}
+        </h4>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '25px' }}>
           <textarea 
             value={comment} 
             onChange={(e) => setComment(e.target.value)} 
-            placeholder="따뜻한 댓글을 남겨주세요!" 
+            placeholder={t('detail.comment_placeholder')}
             style={{ width: '100%', height: '80px', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'none' }} 
           />
           <button onClick={handleCommentSubmit} style={{ alignSelf: 'flex-end', padding: '8px 20px', background: '#2196F3', color: 'white', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
-            등록하기
+            {t("detail.btn_comment_submit")}
           </button>
         </div>
         
@@ -159,7 +180,9 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
               {editingCommentId === c.commentId ? (
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <input value={editCommentContent} onChange={(e) => setEditCommentContent(e.target.value)} style={{ flex: 1, padding: '8px' }} />
-                  <button onClick={() => handleUpdateComment(c.commentId)} style={btnStyle}>저장</button>
+                  <button onClick={() => handleUpdateComment(c.commentId)} style={btnStyle}>
+                    {t('detail.save')}
+                  </button>
                 </div>
               ) : (
                 <div>
@@ -167,8 +190,12 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
                     <strong style={{ fontSize: '14px', color: '#555' }}>{c.writer?.nickname}</strong>
                     {user && user.userId === c.writer?.userId && (
                       <div style={{ display: 'flex', gap: '5px' }}>
-                        <button onClick={() => startEditComment(c)} style={{ border: 'none', background: 'none', color: '#888', fontSize: '12px', cursor: 'pointer' }}>수정</button>
-                        <button onClick={() => handleDeleteComment(c.commentId)} style={{ border: 'none', background: 'none', color: '#ff4d4f', fontSize: '12px', cursor: 'pointer' }}>삭제</button>
+                        <button onClick={() => startEditComment(c)} style={{ border: 'none', background: 'none', color: '#888', fontSize: '12px', cursor: 'pointer' }}>
+                          {t('detail.btn_edit')}
+                        </button>
+                        <button onClick={() => handleDeleteComment(c.commentId)} style={{ border: 'none', background: 'none', color: '#ff4d4f', fontSize: '12px', cursor: 'pointer' }}>
+                          {t('detail.btn_delete')}
+                        </button>
                       </div>
                     )}
                   </div>

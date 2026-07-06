@@ -1,0 +1,32 @@
+{
+  "title": "🏢クリターロビー🏢",
+  "logout" : "ログアウト",
+  "goto_board" : "掲示板に向かう📢",
+  "theme" : "テーマ：",
+  "create_room": {
+    "section_title": "🛠️新しい部屋を作る🛠️",
+    "point" : "ポイント：",
+    "placeholder": "部屋の名前を入力して！",
+    "button": "➕作る！({{price}})",
+    "button_free": "無料"
+  },
+  "my_rooms": {
+    "title": "🗺️私の部屋🗺️",
+    "empty": "まだ部屋が存在してないの！",
+    "enter": "🚪入る"
+  },
+  "recommended_rooms": {
+    "title": "🌐旅立つ🌐",
+    "empty": "まだ他の部屋はないみたい…",
+    "enter": "🚀みてみる"
+  },
+  "error" : {
+    "empty": "部屋の名前は必ず入力して！",
+    "points": "ポイントが足りないみたい！(必要なポイント：{{cost}}P、今のポイント：{{point}}P)",
+    "cant_create" : "部屋が作られない😭",
+    "no_point" : "ポイントが足りないって！"
+  },
+  "alert" : {
+    "create_room" : "部屋を作ったよ！(-{{cost}}P)"
+  }
+}

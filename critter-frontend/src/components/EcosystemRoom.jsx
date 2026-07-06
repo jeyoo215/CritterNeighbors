@@ -6,6 +6,7 @@ import { fetchGuestbooks, postGuestbook } from '../api/guestbookApi';
 import { adoptCritterApi } from '../api/shopApi';
 import { getCritterImagePath } from '../constants/critterImages';
 import Shop from './Shop';
+import { useTranslation } from 'react-i18next';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
@@ -18,6 +19,8 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
   const [chatMessages, setChatMessages] = useState([]); // 채팅
   const [newChatMessage, setNewChatMessage] = useState('');
   const [activeTab, setActiveTab] = useState('GUESTBOOK'); // 접속 시 방명록으로 고정
+
+  const { t } = useTranslation('ecosystemroom');
 
   // 배경 설정
   const theme = currentRoom?.roomTheme || 'DEFAULT';
@@ -52,12 +55,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
     if (!newContent.trim()) return;
 
     if (!roomId) {
-      alert("방 ID가 없습니다!"); // 👈 이 메시지가 뜨면 100% roomId가 안 들어온 거임
+      alert(t('alert.no_room_id'));
       return;
     }
 
     if (!userId) {
-      alert("로그인이 필요한 기능입니다.");
+      alert(t('alert.login_required'));
       return;
     } 
 
@@ -72,7 +75,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
       if (error && error.message) {
         alert(error.message);
       } else {
-        alert("알 수 없는 오류가 발생했습니다.");
+        alert(t('alert.error'));
       }
     }
   };
@@ -157,7 +160,9 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-        <h3>🏞️현재 관찰 중: {currentRoom.account.nickname}님의 {currentRoom.roomTheme} 생태계</h3>
+        <h3>
+          {t('room.title', {nickname : currentRoom.account.nickname, theme: currentRoom.roomTheme})}
+        </h3>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'flex-end', 
@@ -165,11 +170,11 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
         }}>
         {currentUser.userId === currentRoom.account.userId && (
           <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
-            🛒 상점 열기
+            {t('room.btn_shop')}
           </button>
         )}
         <button onClick={onLeaveRoom} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
-          🚪 방 나가기
+          {t('room.btn_leave')}
         </button>
         </div>
       </div>
@@ -187,9 +192,9 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
               await adoptCritterApi(roomId, currentUser.userId, critter);
               const response = await api.get(`/users/${currentUser.userId}`);
               setUser(response.data);
-              alert(`${critter.name} 입양 성공!`);
+              alert(t('alert.adopt_success', {name: critter.name}));
             } catch (error) {
-              alert("입양 실패: " + error.message);
+              alert(t('alert.adopt_fail', {message: error.message}));
             }
           }}
         />
@@ -221,12 +226,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
   
           {/* 1. 상단 탭 헤더 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h4 style={{ margin: 0 }}>{activeTab === 'GUESTBOOK' ? '📒방명록📒' : '💬실시간 채팅💬'}</h4>
+            <h4 style={{ margin: 0 }}>{activeTab === 'GUESTBOOK' ? t('sidebar.guestbook_tab') : t('sidebar.chat_tab')}</h4>
             <button 
               onClick={() => setActiveTab(activeTab === 'GUESTBOOK' ? 'CHAT' : 'GUESTBOOK')}
               style={{ fontSize: '12px', cursor: 'pointer' }}
             >
-              {activeTab === 'GUESTBOOK' ? '💬채팅💬' : '📒방명록📒'}
+              {activeTab === 'GUESTBOOK' ? t('sidebar.chat_tab') : t('sidebar.guestbook_tab')}
             </button>
           </div>
 
@@ -236,18 +241,19 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           <>
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
               {guestbooks.map((gb, i) => (
-                <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || "알수없음"}:</strong> {gb.content}</p>
+                <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || t('guestbook.no_name')}:</strong> {gb.content}</p>
               ))}
             </div>
             {currentUser.userId !== currentRoom.account.userId && (
               <>
                 <textarea value={newContent} onChange={(e) => setNewContent(e.target.value)} style={{ height: '60px', marginBottom: '10px' }} />
-                <button onClick={handleSendGuestbook} style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}>작성하기</button>
+                <button onClick={handleSendGuestbook} style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', cursor: 'pointer' }}>
+                  {t('guestbook.btn_write')}
+                </button>
               </>
             )}
           </>
           ) : (
-            /* 새로 추가할 휘발성 채팅 스타일 (방명록 스타일 그대로 복제) */
             <>
               <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
                 {chatMessages.map((msg, i) => (
@@ -259,9 +265,11 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
                 onChange={(e) => setNewChatMessage(e.target.value)} 
                 onKeyDown={(e) => e.key === 'Enter' && handleSendChatMessage()}
                 style={{ height: '60px', marginBottom: '10px' }} 
-                placeholder="메시지 입력..."
+                placeholder={t('chat.placeholder')}
               />
-              <button onClick={handleSendChatMessage} style={{ padding: '10px', backgroundColor: '#2ecc71', color: 'white', border: 'none', cursor: 'pointer' }}>전송하기</button>
+              <button onClick={handleSendChatMessage} style={{ padding: '10px', backgroundColor: '#2ecc71', color: 'white', border: 'none', cursor: 'pointer' }}>
+                {t('chat.btn_send')}
+              </button>
             </>
           )}
         </div>

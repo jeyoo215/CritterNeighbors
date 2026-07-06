@@ -1,0 +1,30 @@
+{
+  "title": "🛒クリターショップ🛒",
+  "my_points": "ポイント：{{points}}P",
+  "btn_close": "✕",
+  "btn_adopt": {
+    "adopt": "飼う",
+    "no_point": "ポイント足りない",
+    "incompatible": "暮らせない"
+  },
+  "alert": {
+    "naming": "{{name}}の名前、付けてくれる？",
+    "success": "{{name}}を飼うことにした！"
+  },
+  "error" : {
+    "server": "サーバーが不安定みたい",
+    "adopt_fail": "失敗しちゃったー😭",
+    "load_fail" : "リストを読み込めない…ちょっと待ってね！"
+  },
+  "item" : {
+    "critter.octopus": "タコ",
+    "critter.turtle": "カメ",
+    "critter.penguin": "ペンギン",
+    "critter.squirrel": "リス",
+    "critter.fox" : "キツネ",
+    "critter.redpanda" : "レッサーパンダ",
+    "critter.rabbit" : "ウサギ",
+    "critter.dog" : "イヌ",
+    "critter.cat" : "ネコ"
+  }
+}

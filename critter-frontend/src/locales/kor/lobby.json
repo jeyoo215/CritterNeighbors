@@ -1,0 +1,32 @@
+{
+  "title": "🏢크리터 로비🏢",
+  "logout" : "로그아웃",
+  "goto_board" : "게시판 가기📢",
+  "theme" : "테마: ",
+  "create_room": {
+    "section_title": "🛠️ 새로운 생태계 개설 🛠️",
+    "point" : "보유 포인트: ",
+    "placeholder": "생태계 서식지 이름 입력",
+    "button": "➕ 생태계 생성({{price}})",
+    "button_free": "무료"
+  },
+  "my_rooms": {
+    "title": "🗺️내 방🗺️",
+    "empty": "아직 개설된 생태계가 존재하지 않습니다.",
+    "enter": "🚪 입장하기"
+  },
+  "recommended_rooms": {
+    "title": "🌐 여행 가기 🌐",
+    "empty": "현재 여행할 수 있는 다른 생태계가 없습니다.",
+    "enter": "🚀 구경가기"
+  },
+  "error" : {
+    "empty": "방 이름을 입력해 주세요!",
+    "points": "포인트가 부족합니다! (필요: {{cost}}P, 보유: {{points}}P)",
+    "cant_create" : "방 생성 실패!",
+    "no_point" : "포인트 부족"
+  },
+  "alert" : {
+    "create_room" : "방 개설 완료! (-{{cost}}P)"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "room": {
+    "title": "🏞️現在見てるのは{{nickname}}さんの{{theme}}な部屋だよ！",
+    "btn_shop": "🛒買い物しよ",
+    "btn_leave": "🚪部屋を出る"
+  },
+  "sidebar": {
+    "guestbook_tab": "📒ゲストブック📒",
+    "chat_tab": "💬チャット💬"
+  },
+  "alert": {
+    "no_room_id": "部屋に入れない！",
+    "login_required": "ログインしてないみたいだよ",
+    "error" : "問題発生！ちょっと待ってね",
+    "adopt_success": "{{name}}を飼い始めた！",
+    "adopt_fail": "失敗：{{message}}"
+  },
+  "guestbook" : {
+    "no_name" : "名無しさん",
+    "btn_write": "書く"
+  },
+  "chat" : {
+    "placeholder" : "メッセージを入力して",
+    "btn_send": "送る"
+  }
+}

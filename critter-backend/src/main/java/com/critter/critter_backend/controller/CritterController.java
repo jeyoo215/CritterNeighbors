@@ -6,7 +6,7 @@ import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.entity.Critter;
 import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.service.CritterService;
-import com.critter.critter_backend.service.CritterTemplateService;
+import com.critter.critter_backend.service.ShopCritterService;
 import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 
 import jakarta.servlet.http.HttpSession;
@@ -28,7 +28,7 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 public class CritterController {
 
-    private final CritterTemplateService critterTemplateService;
+    private final ShopCritterService shopCritterService;
     private final CritterService critterService;
     private final EcosystemMemoryStorage memoryStorage;
     private final AccountRepository accountRepository;
@@ -43,7 +43,7 @@ public class CritterController {
         if (userId == null) return ResponseEntity.status(401).build();
 
         CritterType critterType = CritterType.valueOf(requestBody.get("critterType").toString());
-        Long price = critterTemplateService.getTemplatePrice(critterType);
+        Long price = shopCritterService.getCritterPrice(critterType);
         String critterName = requestBody.get("critterName").toString();
 
         // 포인트 차감 시도
@@ -78,6 +78,6 @@ public class CritterController {
 
     @GetMapping("/shop-items")
     public ResponseEntity<List<Map<String, Object>>> getShopItems() {
-        return ResponseEntity.ok(critterTemplateService.getAllCritterTemplates());
+        return ResponseEntity.ok(shopCritterService.getAllShopCritter());
     }
 }

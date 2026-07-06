@@ -1,0 +1,42 @@
+{
+  "list": {
+    "title": "📢質問掲示板",
+    "btn_lobby" : "🏠ロビーに戻る",
+    "btn_logout" : "ログアウト",
+    "btn_write": "✏️投稿する",
+    "writer": "作家さん : {{nickname}}",
+    "unknown_writer": "名無しさん",
+    "alert" : {
+      "login_error" : "ログインしてないみたい！"
+    }
+  },
+  "create": {
+    "title": "✏️新しい投稿",
+    "input_title": "タイトルを入力して",
+    "input_content": "内容を入力して",
+    "btn_submit": "載せる",
+    "btn_cancel": "キャンセル",
+    "alert" : {
+      "content_error": "タイトルと内容はきちんと入力してね！",
+      "success": "投稿できたよー！",
+      "write_error": "投稿できなかったー😭"
+    }
+  },
+  "detail": {
+    "back_to_list": "⬅️リストへ",
+    "btn_edit": "直す",
+    "btn_delete": "消す",
+    "btn_save": "セーブ",
+    "btn_cancel": "キャンセル",
+    "confirm_delete": "本当に消しちゃうの？",
+    "comment_title": "💬コメント {{count}}個",
+    "comment_placeholder": "優しいコメントで幸せになれるよ！🍀",
+    "btn_comment_submit": "送る",
+    "data_load" : "데이터 로딩 중...",
+    "prev_board" : "◀ 前の投稿： ",
+    "next_board" : "▶ 次の投稿： ",
+    "alert" : {
+      "content_error" : "コメントの内容を入力して！"
+    }
+  }
+}

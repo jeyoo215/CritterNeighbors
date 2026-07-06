@@ -1,0 +1,26 @@
+{
+  "room": {
+    "title": "🏞️현재 관찰 중 : {{nickname}}님의 {{theme}} 생태계",
+    "btn_shop": "🛒 상점 열기",
+    "btn_leave": "🚪 방 나가기"
+  },
+  "sidebar": {
+    "guestbook_tab": "📒방명록📒",
+    "chat_tab": "💬실시간 채팅💬"
+  },
+  "alert": {
+    "no_room_id": "방 ID가 없습니다!",
+    "login_required": "로그인이 필요한 기능입니다.",
+    "error" : "오류가 발생했습니다.",
+    "adopt_success": "{{name}} 입양 성공!",
+    "adopt_fail": "입양 실패: {{message}}"
+  },
+  "guestbook" : {
+    "no_name" : "알 수 없음",
+    "btn_write": "작성하기"
+  },
+  "chat" : {
+    "placeholder" : "메시지 입력...",
+    "btn_send": "전송하기"
+  }
+}

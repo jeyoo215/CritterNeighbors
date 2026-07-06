@@ -5,13 +5,13 @@ import com.critter.critter_backend.domain.EcosystemTheme;
 import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.entity.Board;
 import com.critter.critter_backend.entity.Comment;
-import com.critter.critter_backend.entity.CritterTemplate;
+import com.critter.critter_backend.entity.ShopCritter;
 import com.critter.critter_backend.entity.Ecosystem;
 import com.critter.critter_backend.entity.Guestbook;
 import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.repository.BoardRepository;
 import com.critter.critter_backend.repository.CommentRepository;
-import com.critter.critter_backend.repository.CritterTemplateRepository;
+import com.critter.critter_backend.repository.ShopCritterRepository;
 
 import com.critter.critter_backend.repository.EcosystemRepository;
 import com.critter.critter_backend.repository.GuestbookRepository;
@@ -32,7 +32,7 @@ public class DataInitializer {
     private final GuestbookRepository guestbookRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
-    private final CritterTemplateRepository critterTemplateRepository;
+    private final ShopCritterRepository critterTemplateRepository;
 
     @Bean
     public CommandLineRunner initData() {
@@ -100,15 +100,15 @@ public class DataInitializer {
 
             // 상점 데이터 생성
             if (critterTemplateRepository.count() == 0) {
-                critterTemplateRepository.save(new CritterTemplate(null, "문어", CritterType.OCTOPUS, EcosystemTheme.OCEAN, 20L));
-                critterTemplateRepository.save(new CritterTemplate(null, "거북이", CritterType.TURTLE, EcosystemTheme.OCEAN, 25L));
-                critterTemplateRepository.save(new CritterTemplate(null, "펭귄", CritterType.PENGUIN, EcosystemTheme.OCEAN, 30L));
-                critterTemplateRepository.save(new CritterTemplate(null, "다람쥐", CritterType.SQUIRREL, EcosystemTheme.FOREST, 20L));
-                critterTemplateRepository.save(new CritterTemplate(null, "여우", CritterType.FOX, EcosystemTheme.FOREST, 25L));
-                critterTemplateRepository.save(new CritterTemplate(null, "랫서판다", CritterType.REDPANDA, EcosystemTheme.FOREST, 30L));
-                critterTemplateRepository.save(new CritterTemplate(null, "토끼", CritterType.RABBIT, EcosystemTheme.GRASSLAND, 20L));
-                critterTemplateRepository.save(new CritterTemplate(null, "강아지", CritterType.DOG, EcosystemTheme.GRASSLAND, 25L));
-                critterTemplateRepository.save(new CritterTemplate(null, "고양이", CritterType.CAT, EcosystemTheme.GRASSLAND, 30L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.octopus", CritterType.OCTOPUS, EcosystemTheme.OCEAN, 20L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.turtle", CritterType.TURTLE, EcosystemTheme.OCEAN, 25L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.penguin", CritterType.PENGUIN, EcosystemTheme.OCEAN, 30L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.squirrel", CritterType.SQUIRREL, EcosystemTheme.FOREST, 20L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.fox", CritterType.FOX, EcosystemTheme.FOREST, 25L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.redpanda", CritterType.REDPANDA, EcosystemTheme.FOREST, 30L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.rabbit", CritterType.RABBIT, EcosystemTheme.GRASSLAND, 20L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.dog", CritterType.DOG, EcosystemTheme.GRASSLAND, 25L));
+                critterTemplateRepository.save(new ShopCritter(null, "critter.cat", CritterType.CAT, EcosystemTheme.GRASSLAND, 30L));
                 System.out.println("상점 데이터 생성 완료");
             }
         };

@@ -8,17 +8,17 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.critter.critter_backend.domain.CritterType;
-import com.critter.critter_backend.repository.CritterTemplateRepository;
+import com.critter.critter_backend.repository.ShopCritterRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CritterTemplateService {
+public class ShopCritterService {
 
-    private final CritterTemplateRepository critterTemplateRepository;
+    private final ShopCritterRepository shopCritterRepository;
 
-    public List<Map<String, Object>> getAllCritterTemplates() {
-        return critterTemplateRepository.findAll().stream()
+    public List<Map<String, Object>> getAllShopCritter() {
+        return shopCritterRepository.findAll().stream()
             .map(template -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", template.getId());
@@ -31,8 +31,8 @@ public class CritterTemplateService {
             .collect(Collectors.toList());
     }
 
-    public Long getTemplatePrice(CritterType type) {
-        return critterTemplateRepository.findByType(type)
+    public Long getCritterPrice(CritterType type) {
+        return shopCritterRepository.findByType(type)
                 .orElseThrow(() -> new RuntimeException("해당 크리처 정보를 찾을 수 없습니다."))
                 .getPrice();
     }

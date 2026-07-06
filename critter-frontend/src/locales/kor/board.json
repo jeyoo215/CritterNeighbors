@@ -1,0 +1,42 @@
+{
+  "list": {
+    "title": "📢 질문 게시판",
+    "btn_lobby" : "🏠로비",
+    "btn_logout" : "로그아웃",
+    "btn_write": "✏️글쓰기",
+    "writer": "작성자 : {{nickname}}",
+    "unknown_writer": "알수없음",
+    "alert" : {
+      "login_error" : "로그인 정보가 없습니다."
+      }
+  },
+  "create": {
+    "title": "✏️ 새 글 작성",
+    "input_title": "제목을 입력하세요",
+    "input_content": "내용을 입력하세요",
+    "btn_submit": "등록",
+    "btn_cancel": "취소",
+    "alert" : {
+      "content_error" : "제목과 내용을 입력하세요!",
+      "success": "글이 등록되었습니다!",
+      "write_error" : "글 등록에 실패했습니다."
+    }
+  },
+  "detail": {
+    "back_to_list": "⬅️목록으로",
+    "btn_edit": "수정",
+    "btn_delete": "삭제",
+    "btn_save": "저장",
+    "btn_cancel": "취소",
+    "confirm_delete": "정말 삭제하시겠습니까?",
+    "comment_title": "💬댓글 {{count}}개",
+    "comment_placeholder": "따뜻한 댓글을 남겨주세요!",
+    "btn_comment_submit": "등록하기",
+    "data_load" : "데이터 로딩 중...",
+    "prev_board" : "◀ 이전글: ",
+    "next_board" : "▶ 다음글: ",
+    "alert" : {
+      "content_error" : "댓글 내용을 입력하세요"
+    }
+  }
+}

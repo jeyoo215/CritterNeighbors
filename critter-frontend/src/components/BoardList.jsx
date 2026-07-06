@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { fetchBoards, createBoard } from '../api/boardApi';
+import { useTranslation } from 'react-i18next';
 
 // 🆕 onSelectBoard props를 추가로 받아야 합니다!
 export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCreate, onLogout }) {
@@ -17,6 +18,8 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
+  const { t } = useTranslation('board');
+
   const loadBoards = async () => {
     try {
       const res = await fetchBoards();
@@ -31,8 +34,8 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
   }, []);
 
   const handleWrite = async () => {
-    if (!user || !user.userId) return alert("로그인 정보가 없습니다.");
-    if (!title || !content) return alert("제목과 내용을 입력하세요!");
+    if (!user || !user.userId) return alert(t('list.alert.login_error'));
+    if (!title || !content) return alert(t('create.alert.content_error'));
     
     try {
       await createBoard({ 
@@ -45,26 +48,28 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
       loadBoards(); 
     } catch (e) {
       console.error("글 등록 실패", e);
-      alert("글 등록에 실패했습니다.");
+      alert(t('create.alert.write_error'));
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2>📢 질문 게시판</h2>
+        <h2>{t('list.title')}</h2>
         <div>
-          <button onClick={onBackToLobby} style={{ ...styles.button, backgroundColor: '#95a5a6' }}>🏠 로비</button>
-          <button onClick={onLogout} style={{ ...styles.button, backgroundColor: '#e74c3c', marginLeft: '10px' }}>로그아웃</button>
+          <button onClick={onBackToLobby} style={{ ...styles.button, backgroundColor: '#95a5a6' }}>{t('list.btn_lobby')}</button>
+          <button onClick={onLogout} style={{ ...styles.button, backgroundColor: '#e74c3c', marginLeft: '10px' }}>{t('list.btn_logout')}</button>
         </div>
       </div>
 
-      <button onClick={onGoToCreate} style={{ ...styles.button, marginBottom: '20px' }}>✏️ 글쓰기</button>
+      <button onClick={onGoToCreate} style={{ ...styles.button, marginBottom: '20px' }}>{t('list.btn_write')}</button>
       
       {Array.isArray(boards) && boards.map(board => (
         <div key={board.boardId} onClick={() => onSelectBoard(board.boardId)} style={styles.boardItem}>
           <h3 style={{ margin: '0 0 5px 0' }}>{board.title}</h3>
-          <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>작성자: {board.writer?.nickname || "알수없음"}</p>
+          <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>
+            {t('list.writer', { nickname: board.writer?.nickname || t('list.unknown_writer') })}
+          </p>
         </div>
       ))}
     </div>

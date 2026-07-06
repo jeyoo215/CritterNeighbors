@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom, onClose, onAdoptSuccess }) {
   //roomTheme, userPoints
@@ -6,12 +7,14 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
   // 각 크리처별로 유저가 입력한 이름을 저장할 객체 상태
   const [nicknames, setNicknames] = useState({});
 
+  const { t } = useTranslation('shop');
+
   // 1. 서버에서 상점 아이템 목록 가져오기
   useEffect(() => {
     const fetchShopItems = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/ecosystems/${roomId}/critters/shop-items`);
-        if (!response.ok) throw new Error("상점 목록을 불러올 수 없습니다.");
+        if (!response.ok) throw new Error(t('error.load_fail'));
         const data = await response.json();
         setCritters(data);
       } catch (error) {
@@ -23,10 +26,10 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
 
   // 2. 입양 요청 처리
   const handleAdopt = async (critter) => {
-    const name = prompt(`${critter.name}의 이름을 지어주세요!`, critter.name);
+    const translatedName = t(`item.critter.${critter.type.toLowerCase()}`);
+    const name = prompt(t('alert.naming', { name: translatedName }), translatedName);
     if (name === null) return; 
-
-    const finalName = name.trim() === '' ? critter.name : name;
+    const finalName = name.trim() === '' ? translatedName : name;
 
     try {
       const response = await fetch(`http://localhost:8080/api/ecosystems/${roomId}/critters`, {
@@ -43,17 +46,17 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
       if (response.ok) {
         const data = await response.json();
         setCurrentUser(data.user);
-        alert(`${finalName} 입양 성공!`);
+        alert(t('alert.success', {name: finalName}));
         if (onAdoptSuccess) onAdoptSuccess(); 
         onClose();
         
       } else {
         const errorMsg = await response.text();
-        alert(errorMsg || "입양에 실패했습니다.");
+        alert(errorMsg || t('error.adopt_fail'));
       }
     } catch (error) {
       console.error("입양 실패:", error);
-      alert("서버 오류가 발생했습니다.");
+      alert(t('error.server'));
     }
   };
 
@@ -82,8 +85,8 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
         ✕
       </button>
 
-      <h3 style={{ marginTop: 0 }}>🛒 크리처 상점</h3>
-      <p>내 포인트: {currentUser.point}P</p>
+      <h3 style={{ marginTop: 0 }}>{t('title')}</h3>
+      <p>{t('my_points', {points: currentUser.point})}</p>
       
       <div style={{ 
         display: 'grid', 
@@ -107,7 +110,7 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
               justifyContent: 'space-between', // 내용물 정렬
               fontSize: '12px' // 폰트 크기 조절
             }}>
-              <h4 style={{ margin: '0 0 5px 0' }}>{critter.name}</h4>
+              <h4 style={{ margin: '0 0 5px 0' }}>{t(`item.${critter.name}`)}</h4>
               <p style={{ margin: '0' }}>{critter.theme}</p>
               <p style={{ margin: '0 0 10px 0' }}>{critter.price}P</p>
               
@@ -116,7 +119,10 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
                 onClick={() => handleAdopt(critter)}
                 style={{ padding: '5px', cursor: 'pointer', width: '100%' }}
               >
-                {isCompatible ? (currentUser.point >= critter.price ? "입양" : "포인트 부족") : "서식지 불일치"}
+                {isCompatible ? (currentUser.point >= critter.price 
+                  ? t('btn_adopt.adopt')
+                  : t('btn_adpot.no_point'))
+                  : t('btn_adopt.incompatible')}
               </button>
             </div>
           );

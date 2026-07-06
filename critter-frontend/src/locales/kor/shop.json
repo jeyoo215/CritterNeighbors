@@ -1,0 +1,30 @@
+{
+  "title": "🛒크리처 상점🛒",
+  "my_points": "내 포인트: {{points}}P",
+  "btn_close": "✕",
+  "btn_adopt": {
+    "adopt": "입양",
+    "no_point": "포인트 부족",
+    "incompatible": "서식지 불일치"
+  },
+  "alert": {
+    "naming": "{{name}}의 이름을 지어주세요!",
+    "success": "{{name}} 입양 성공!"
+  },
+  "error" : {
+    "server": "서버 오류가 발생했습니다.",
+    "adopt_fail": "입양에 실패했습니다",
+    "load_fail" : "상점 목록을 불러올 수 없습니다."
+  },
+  "item" : {
+    "critter.octopus": "문어",
+    "critter.turtle": "거북이",
+    "critter.penguin": "펭귄",
+    "critter.squirrel": "다람쥐",
+    "critter.fox" : "여우",
+    "critter.redpanda" : "랫서판다",
+    "critter.rabbit" : "토끼",
+    "critter.dog" : "강아지",
+    "critter.cat" : "고양이"
+  }
+}

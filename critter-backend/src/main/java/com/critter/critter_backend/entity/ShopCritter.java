@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class CritterTemplate {
+public class ShopCritter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
