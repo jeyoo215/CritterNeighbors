@@ -1,5 +1,5 @@
 // GIF가 존재하는 동물들만 관리하는 리스트
-export const GIF_SUPPORTED_CRITTERS = ['PENGUIN', 'DOG', 'CAT', 'FOX', 'OCTOPUS', 'RABBIT', 'REDPANDA', 'SQUIRREL'];
+export const GIF_SUPPORTED_CRITTERS = ['PENGUIN', 'DOG', 'CAT', 'FOX', 'OCTOPUS', 'RABBIT', 'REDPANDA', 'SQUIRREL', "TURTLE"];
 
 export const getCritterImagePath = (critterType, status) => {
   const type = critterType.toUpperCase();

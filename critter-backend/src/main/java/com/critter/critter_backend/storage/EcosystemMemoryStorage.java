@@ -66,7 +66,6 @@ public class EcosystemMemoryStorage {
         System.out.println(roomId + "번 방에 접속자가 없어 메모리에서 언로드되었습니다.");
     }
 
-    // EcosystemMemoryStorage.java 안에 추가해줘
     public void addCritter(Long roomId, CritterLocationDto critter) {
         // 1. 방에 있는 동물 리스트를 가져와 (없으면 새로 만들어)
         List<CritterLocationDto> critters = roomCritterMap.computeIfAbsent(roomId, k -> new ArrayList<>());

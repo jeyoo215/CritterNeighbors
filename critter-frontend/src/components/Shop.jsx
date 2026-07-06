@@ -36,18 +36,17 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
           userId: currentUser.userId,
           critterName: finalName,
           critterType: critter.type
-        })
+        }),
+        credentials: 'include'
       });
 
       if (response.ok) {
-        setCurrentUser(prev => ({ 
-          ...prev, 
-          point: prev.point - critter.price 
-        }));
-        
+        const data = await response.json();
+        setCurrentUser(data.user);
         alert(`${finalName} 입양 성공!`);
         if (onAdoptSuccess) onAdoptSuccess(); 
         onClose();
+        
       } else {
         const errorMsg = await response.text();
         alert(errorMsg || "입양에 실패했습니다.");

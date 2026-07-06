@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
 import { 
   fetchBoardDetail, 
   fetchNeighbors,
@@ -10,7 +11,7 @@ import {
   updateComment
 } from '../api/boardApi';
 
-export default function BoardDetail({ boardId, setBoardId, user, onBackToList }) {
+export default function BoardDetail({ boardId, setBoardId, user, onBackToList, refreshUser }) {
   // 게시글
   const [board, setBoard] = useState(null);
   // 이전글 다음글
@@ -47,6 +48,9 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList })
   const handleCommentSubmit = async () => {
     if (!comment) return alert("댓글 내용을 입력하세요.");
     await postComment(boardId, { writerId: user.userId, content: comment });
+    if (refreshUser) {
+        await refreshUser(); 
+    }
     setComment('');
     loadAllData();
   };

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
 import { fetchBoards, createBoard } from '../api/boardApi';
 
 // 🆕 onSelectBoard props를 추가로 받아야 합니다!
@@ -60,7 +61,7 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
 
       <button onClick={onGoToCreate} style={{ ...styles.button, marginBottom: '20px' }}>✏️ 글쓰기</button>
       
-      {boards.map(board => (
+      {Array.isArray(boards) && boards.map(board => (
         <div key={board.boardId} onClick={() => onSelectBoard(board.boardId)} style={styles.boardItem}>
           <h3 style={{ margin: '0 0 5px 0' }}>{board.title}</h3>
           <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>작성자: {board.writer?.nickname || "알수없음"}</p>

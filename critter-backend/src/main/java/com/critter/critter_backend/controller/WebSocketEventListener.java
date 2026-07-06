@@ -58,7 +58,6 @@ public class WebSocketEventListener {
             }
             
             memoryStorage.loadCritters(roomId, memoryCritters);
-            log.info("[On-Demand 로딩] DB에서 {}마리의 동물을 방 {}번 메모리에 적재 완료!", memoryCritters.size(), roomId);
         }
     }
 
@@ -70,12 +69,10 @@ public class WebSocketEventListener {
         Long roomId = memoryStorage.getRoomIdBySession(sessionId);
         
         if (roomId == null) {
-            log.warn("[소켓 단절] 세션 ID {}에 매핑된 방을 찾을 수 없습니다.", sessionId);
             return;
         }
 
         memoryStorage.removeSession(roomId, sessionId);
-        log.info("[소켓 단절] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
 
         // !hasPassengers(roomId) : 방이 비어있는지
         if (!memoryStorage.hasPassengers(roomId)) {
@@ -90,7 +87,6 @@ public class WebSocketEventListener {
 
             // unloadRoom(roomId) 호출해서 메모리 청소
             memoryStorage.unloadRoom(roomId);
-            log.info("[동적 메모리 해제] 방 {}번에 접속자가 없어 영속화 후 언로드 완료!", roomId);
         }
     }
 }

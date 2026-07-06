@@ -1,11 +1,15 @@
 package com.critter.critter_backend.service;
 
-import com.critter.critter_backend.domain.EcosystemTheme; // 🟢 도메인 패키지의 테마 Enum
+import com.critter.critter_backend.domain.EcosystemTheme;
+import com.critter.critter_backend.domain.PointReason;
 import com.critter.critter_backend.entity.Account;
-import com.critter.critter_backend.entity.Ecosystem; // 🟢 네 방 엔티티 이름 확인! (ECOSYSTEMS)
+import com.critter.critter_backend.entity.Ecosystem; 
+import com.critter.critter_backend.event.PointEvents;
 import com.critter.critter_backend.repository.AccountRepository; // 💡 이제 절대 안 틀림! 완벽 매핑!
 import com.critter.critter_backend.repository.EcosystemRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,23 +22,23 @@ public class EcosystemService {
     private final EcosystemRepository ecosystemRepository;
     private final AccountRepository accountRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     // 유저 별 생태계 생성
     @Transactional
     public Ecosystem createRoom(Long userId, String roomName, String themeStr) {
-        // 1. 방을 개설할 유저 검증
         Account account = accountRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         List<Ecosystem> existingRooms = ecosystemRepository.findByAccount_UserId(userId);
         boolean isFirstRoom = existingRooms.isEmpty();
 
-        int cost = isFirstRoom ? 0 : 50;
+        Long price = isFirstRoom ? 0L : 50L;
 
-        if (account.getPoint() < cost) {
+        if (account.getPoint() < price) {
             throw new RuntimeException("포인트가 부족해요!");
         }
 
-        // 2. [명세서 스펙] OCEAN, FOREST, GRASSLAND 중 하나의 환경 테마 필수로 선택 검증
         EcosystemTheme theme;
         try {
             theme = EcosystemTheme.valueOf(themeStr.toUpperCase());
@@ -47,10 +51,11 @@ public class EcosystemService {
         ecosystem.setAccount(account);
         ecosystem.setRoomName(roomName);
         ecosystem.setRoomTheme(theme);
+        Ecosystem newEcosystem = ecosystemRepository.save(ecosystem);
 
-        account.setPoint(account.getPoint() - cost);
+        eventPublisher.publishEvent(new PointEvents.Spend(userId, price, PointReason.ADOPT_CRITTER));
 
-        return ecosystemRepository.save(ecosystem);
+        return newEcosystem;
     }
 
 

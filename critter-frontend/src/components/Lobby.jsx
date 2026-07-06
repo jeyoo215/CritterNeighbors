@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
 
 export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogout }) {
   const [myRooms, setMyRooms] = useState([]);
@@ -9,11 +10,8 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
   // 🔍 마운트 시 유저의 실제 방 목록 조회
   const fetchMyRooms = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/ecosystems/my?userId=${user.userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMyRooms(data);
-      }
+      const response = await api.get(`/ecosystems/my`);
+      setMyRooms(response.data);
     } catch (error) {
       console.error("방 목록 로딩 실패:", error);
     }
@@ -22,11 +20,8 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
   const fetchRecommendedRooms = async () => {
     try {
       // 예: 서버에서 랜덤 5개를 주는 엔드포인트가 있다고 가정
-      const response = await fetch(`http://localhost:8080/api/ecosystems/random?userId=${user.userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setRecommendedRooms(data);
-      }
+      const response = await api.get(`/ecosystems/random`);
+      setRecommendedRooms(response.data);
     } catch (error) {
       console.error("추천 방 로딩 실패:", error);
     }
@@ -48,33 +43,32 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/ecosystems", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.userId,
-          roomName: roomNameInput,
-          roomTheme: themeInput
-        }),
+      const response = await api.post(`/ecosystems`, {
+        userId: user.userId,
+        roomName: roomNameInput,
+        roomTheme: themeInput
       });
 
-      if (response.ok) {
-        const newRoom = await response.json();
+      const newRoom = await response.data;
         
-        setUser(prev => ({ 
-          ...prev, 
-          point: prev.point - cost 
-        }));
+      setUser(prev => ({ 
+        ...prev, 
+        point: prev.point - cost 
+      }));
 
-        alert(`🌊 방 개설 완료! (-${cost}P)`);
-        setRoomNameInput('');
-        fetchMyRooms();
-      } else {
-        const errorMsg = await response.text();
-        alert(errorMsg || "방 생성 실패!");
-      }
+      alert(`🌊 방 개설 완료! (-${cost}P)`);
+      setRoomNameInput('');
+      fetchMyRooms();
     } catch (error) {
       console.error("방 생성 에러:", error);
+
+      let errorMsg = "방 생성 실패!";
+      if (error.response && error.response.data) {
+      errorMsg = typeof error.response.data === 'string' 
+        ? error.response.data 
+        : (error.response.data.message || errorMsg);
+      }
+      alert(errorMsg);
     }
   };
 

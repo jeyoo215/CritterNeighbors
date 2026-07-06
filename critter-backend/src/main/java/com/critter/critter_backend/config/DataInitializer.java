@@ -54,7 +54,7 @@ public class DataInitializer {
                 Ecosystem room2 = Ecosystem.builder()
                                             .account(user2)
                                             .roomName("나는야 위대한 물 없이 사는 팽귄")
-                                            .roomTheme(EcosystemTheme.FOREST)
+                                            .roomTheme(EcosystemTheme.GRASSLAND)
                                             .build();
                 ecosystemRepository.save(room2);
 

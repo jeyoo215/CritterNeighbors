@@ -1,9 +1,12 @@
 package com.critter.critter_backend.controller;
 
+import com.critter.critter_backend.dto.BoardRequestDto;
 import com.critter.critter_backend.dto.CommentRequestDto;
 import com.critter.critter_backend.entity.Board;
 import com.critter.critter_backend.entity.Comment;
 import com.critter.critter_backend.service.BoardService;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +29,12 @@ public class BoardController {
         POST /api/boards
     */
     @PostMapping
-    public ResponseEntity<Board> createBoard(@RequestBody Map<String, Object> requestBody) {
-        Long writerId = Long.valueOf(requestBody.get("writerId").toString());
-        String title = requestBody.get("title").toString();
-        String content = requestBody.get("content").toString();
+    public ResponseEntity<Board> createBoard(@RequestBody BoardRequestDto dto,
+        HttpSession session) {
+        Long writerId = (Long) session.getAttribute("USER_ID");
+        if (writerId == null) return ResponseEntity.status(401).build();
 
-        Board savedBoard = boardService.createBoard(writerId, title, content);
+        Board savedBoard = boardService.createBoard(writerId, dto.getTitle(), dto.getContent());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
     }
 
@@ -76,9 +79,13 @@ public class BoardController {
     @PostMapping("/{boardId}/comments")
         public ResponseEntity<Comment> createComment(
             @PathVariable("boardId") Long boardId,
-            @RequestBody CommentRequestDto dto) { // Map 대신 DTO 사용!
-    
-            Comment savedComment = boardService.createComment(boardId, dto.getWriterId(), dto.getContent());
+            @RequestBody CommentRequestDto dto,
+            HttpSession session) {
+
+            Long writerId = (Long) session.getAttribute("USER_ID");
+            if (writerId == null) return ResponseEntity.status(401).build();
+
+            Comment savedComment = boardService.createComment(boardId, writerId, dto.getContent());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
         }
 
@@ -97,10 +104,15 @@ public class BoardController {
         PUT /api/boards/{boardId}
     */
     @PutMapping("/{boardId}")
-    public ResponseEntity<Board> updateBoard(@PathVariable("boardId") Long boardId, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<Board> updateBoard(@PathVariable("boardId") Long boardId,
+            @RequestBody Map<String, Object> body,
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("USER_ID");
+        if (userId == null) return ResponseEntity.status(401).build();
+
         String title = (String) body.get("title");
         String content = (String) body.get("content");
-        return ResponseEntity.ok(boardService.updateBoard(boardId, title, content));
+        return ResponseEntity.ok(boardService.updateBoard(userId, boardId, title, content));
     }
 
     /*
@@ -110,9 +122,13 @@ public class BoardController {
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<Comment> updateComment(
             @PathVariable("commentId") Long commentId, 
-            @RequestBody Map<String, Object> body) {
+            @RequestBody Map<String, Object> body,
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("USER_ID");
+        if (userId == null) return ResponseEntity.status(401).build();
+        
         String content = (String) body.get("content");
-        return ResponseEntity.ok(boardService.updateComment(commentId, content));
+        return ResponseEntity.ok(boardService.updateComment(userId, commentId, content));
     }
 
     /*
@@ -120,8 +136,12 @@ public class BoardController {
         DELETE /api/boards/{boardId}
     */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable("boardId") Long boardId) {
-        boardService.deleteBoard(boardId);
+    public ResponseEntity<Void> deleteBoard(@PathVariable("boardId") Long boardId,
+        HttpSession session) {
+        Long userId = (Long) session.getAttribute("USER_ID");
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        boardService.deleteBoard(userId, boardId);
         return ResponseEntity.noContent().build();
     }
 
@@ -130,8 +150,12 @@ public class BoardController {
         DELETE /api/boards/comments/{commentId}
     */
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable("commentId") Long commentId) {
-        boardService.deleteComment(commentId);
+    public ResponseEntity<Void> deleteComment(@PathVariable("commentId") Long commentId,
+        HttpSession session) {
+        Long userId = (Long) session.getAttribute("USER_ID");
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        boardService.deleteComment(userId, commentId);
         return ResponseEntity.noContent().build();
     }
 }

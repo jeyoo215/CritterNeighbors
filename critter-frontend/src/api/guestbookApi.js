@@ -1,23 +1,15 @@
-// api/guestbookApi.js
-const API_BASE = "http://localhost:8080/api/ecosystems";
+import api from './axios';
+
+const API_BASE = "/ecosystems";
 
 export const fetchGuestbooks = async (roomId) => {
-  const response = await fetch(`${API_BASE}/${roomId}/guestbook`);
-  return response.json();
+  const response = await api.get(`${API_BASE}/${roomId}/guestbook`);
+  return response.data;
 };
 
 export const postGuestbook = async (roomId, writerId, content) => {
-  console.log("요청 URL:", `${API_BASE}/${roomId}/guestbook`);
-
-  const response = await fetch(`${API_BASE}/${roomId}/guestbook`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ writerId, content })
+  const response = await api.post(`${API_BASE}/${roomId}/guestbook`, {
+    writerId, content
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw errorData;
-  }
-  return await response.json();
+  return await response.data;
 };

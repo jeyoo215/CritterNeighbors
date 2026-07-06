@@ -1,7 +1,12 @@
 package com.critter.critter_backend.service;
 
 import com.critter.critter_backend.entity.Guestbook;
+import com.critter.critter_backend.event.ActionLogEvents;
+import com.critter.critter_backend.event.PointEvents;
 import com.critter.critter_backend.entity.Ecosystem; // 네 프로젝트의 방 엔티티 클래스명 확인!
+import com.critter.critter_backend.domain.ActionType;
+import com.critter.critter_backend.domain.LogTargetType;
+import com.critter.critter_backend.domain.PointReason;
 import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.exception.SelfGuestbookForbiddenException;
 import com.critter.critter_backend.repository.GuestbookRepository;
@@ -9,6 +14,8 @@ import com.critter.critter_backend.repository.EcosystemRepository; // 방 레포
 import com.critter.critter_backend.repository.AccountRepository; // 유저 레포지토리
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -21,6 +28,8 @@ public class GuestbookService {
     private final GuestbookRepository guestbookRepository;
     private final EcosystemRepository ecosystemRepository;
     private final AccountRepository accountRepository;
+    
+    private final ApplicationEventPublisher eventPublisher;
 
     // 방명록 비동기 등록
     @Transactional
@@ -44,8 +53,13 @@ public class GuestbookService {
         guestbook.setEcosystem(room); // 네 레포지토리 쿼리 메서드 기반 명칭 매핑
         guestbook.setWriter(writer);
         guestbook.setContent(content);
+        Guestbook savedGuestbook = guestbookRepository.save(guestbook);
 
-        return guestbookRepository.save(guestbook);
+        eventPublisher.publishEvent(new PointEvents.Earn(writerId, 5L, PointReason.POST_GUESTBOOK));
+
+        eventPublisher.publishEvent(new ActionLogEvents.recordActionLog(writerId, roomId, savedGuestbook.getGuestbookId(), LogTargetType.GUESTBOOK, ActionType.POST_GUESTBOOK));
+        
+        return savedGuestbook;
     }
 
     // 특정 방의 방명록 목록 조회 (네가 만든 최신순 쿼리 메서드 호출)

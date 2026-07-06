@@ -1,0 +1,10 @@
+package com.critter.critter_backend.domain;
+
+public enum ActionType {
+    POST_BOARD, UPDATE_BOARD, DELETE_BOARD,
+    POST_COMMENT, UPDATE_COMMENT, DELETE_COMMENT,
+    POST_GUESTBOOK,
+    ENTER_ROOM, CREATE_ROOM,
+    ADOPT_CRITTER,
+    INTERACT_PANIC
+}

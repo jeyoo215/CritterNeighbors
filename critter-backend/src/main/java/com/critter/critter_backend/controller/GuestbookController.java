@@ -3,6 +3,8 @@ package com.critter.critter_backend.controller;
 import com.critter.critter_backend.dto.GuestbookRequestDto;
 import com.critter.critter_backend.entity.Guestbook;
 import com.critter.critter_backend.service.GuestbookService;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +35,14 @@ public class GuestbookController {
     @PostMapping("/api/ecosystems/{roomId}/guestbook")
     public ResponseEntity<Guestbook> createGuestbook(
             @PathVariable Long roomId,
-            @RequestBody GuestbookRequestDto request) {
+            @RequestBody GuestbookRequestDto request,
+            HttpSession session) {
+
+        Long writerId = (Long) session.getAttribute("USER_ID");
+        if (writerId == null) return ResponseEntity.status(401).build();
         
-        Guestbook saved = guestbookService.createGuestbook(roomId, request.getWriterId(), request.getContent());
+        Guestbook saved = guestbookService.createGuestbook(roomId, writerId, request.getContent());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 }

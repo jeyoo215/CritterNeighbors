@@ -35,10 +35,10 @@ public class Board {
     @JoinColumn(name = "WRITER_ID", nullable = false)
     private Account writer;
 
-    @Column(name = "TITLE", nullable = false)
+    @Column(name = "TITLE", nullable = false, length = 100)
     private String title;
 
-    @Column(name = "CONTENT", nullable = false, length = 2000)
+    @Column(name = "CONTENT", columnDefinition = "TEXT", nullable = false, length = 2000)
     private String content;
 
     @Column(name = "CREATED_AT", nullable = false, updatable = false)

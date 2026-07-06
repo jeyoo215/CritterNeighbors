@@ -14,6 +14,11 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
+    public Account getUserById(Long userId) {
+        return accountRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다. ID: " + userId));
+    }
+    
     /*
      * 회원가입
      */
@@ -50,5 +55,11 @@ public class AccountService {
         }
 
         return account;
+    }
+
+    @Transactional(readOnly = true)
+    public String getNickname(Long userId) {
+        Account account = getUserById(userId);
+        return account.getNickname();
     }
 }

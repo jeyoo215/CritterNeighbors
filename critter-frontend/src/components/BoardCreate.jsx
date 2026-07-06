@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createBoard } from '../api/boardApi';
 
-export default function BoardCreate({ user, onBackToList }) {
+export default function BoardCreate({ user, onBackToList, refreshUser }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
@@ -15,6 +15,9 @@ export default function BoardCreate({ user, onBackToList }) {
         content
       });
       alert("글이 등록되었습니다!");
+      if (refreshUser) {
+        await refreshUser(); 
+      }
       onBackToList(); // 성공하면 게시판 목록으로 이동
     } catch (e) {
       console.error("등록 실패", e);

@@ -39,7 +39,7 @@ public class Comment {
     @JoinColumn(name = "WRITER_ID", nullable = false)
     private Account writer;
 
-    @Column(name = "CONTENT", nullable = false, length = 1000)
+    @Column(name = "CONTENT", columnDefinition = "TEXT", nullable = false, length = 1000)
     private String content;
 
     @Column(name = "CREATED_AT", nullable = false, updatable = false)

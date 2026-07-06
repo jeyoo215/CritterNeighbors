@@ -21,3 +21,11 @@ spring:
         show_sql: true      # 콘솔창에 스프링이 날리는 SQL 쿼리를 보여줌
         format_sql: true    # SQL 쿼리를 한눈에 보기 좋게 정렬
         use_sql_comments: true
+
+server:
+  servlet:
+    session:
+      timeout: 30m # 30분 동안 유지
+      cookie:
+        same-site: none
+        secure: true # (로컬 테스트에서는 true가 안 되면 false로 해봐) 
