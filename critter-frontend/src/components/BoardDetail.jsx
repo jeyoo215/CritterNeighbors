@@ -125,7 +125,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
                   {t('detail.btn_edit')}
                 </button>
                 <button onClick={handleDeleteBoard} style={{ ...btnStyle, background: '#ff4d4f', color: 'white' }}>
-                  {t('detail.btn_cancel')}
+                  {t('detail.btn_delete')}
                 </button>
               </div>
             )}
