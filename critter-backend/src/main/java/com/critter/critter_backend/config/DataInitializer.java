@@ -1,5 +1,6 @@
 package com.critter.critter_backend.config;
 
+import com.critter.critter_backend.domain.BoardCategory;
 import com.critter.critter_backend.domain.CritterType;
 import com.critter.critter_backend.domain.EcosystemTheme;
 import com.critter.critter_backend.entity.Account;
@@ -38,7 +39,12 @@ public class DataInitializer {
     public CommandLineRunner initData() {
         return args -> {
             Account user1 = accountRepository.findByUserName("test").orElseGet(() -> 
-                accountRepository.save(Account.builder().userName("test").password("1234").nickname("수달이").build()));
+                accountRepository.save(Account.builder()
+                            .userName("test")
+                            .password("1234")
+                            .nickname("수달이")
+                            .point(10000L)
+                            .build()));
             
             Account user2 = accountRepository.findByUserName("testing").orElseGet(() -> 
                 accountRepository.save(Account.builder().userName("testing").password("1234").nickname("펭귄이").build()));
@@ -78,6 +84,7 @@ public class DataInitializer {
             if (boardRepository.count() == 0) {
                 Board board1 = Board.builder()
                                     .writer(user2)
+                                    .category(BoardCategory.KOREAN)
                                     .title("나는 물 없이도 살아갈 수 있는")
                                     .content("고등급 펭귄님이시다~!~!~!~")
                                     .build();

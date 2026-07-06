@@ -3,7 +3,7 @@ import api from './axios';
 const API_BASE = '/boards';
 
 // 게시판 조회
-export const fetchBoards = () => api.get(API_BASE);
+export const fetchBoards = (category = 'ALL') => api.get(`/boards?category=${category}`);
 
 // 게시글 등록
 export const createBoard = (boardData) => api.post(API_BASE, boardData);

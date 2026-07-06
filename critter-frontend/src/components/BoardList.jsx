@@ -15,6 +15,7 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
   };
 
   const [boards, setBoards] = useState([]);
+  const [category, setCategory] = useState('ALL');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
@@ -22,7 +23,7 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
 
   const loadBoards = async () => {
     try {
-      const res = await fetchBoards();
+      const res = await fetchBoards(category);
       setBoards(res.data);
     } catch (e) {
       console.error("목록 불러오기 실패", e);
@@ -31,7 +32,11 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
 
   useEffect(() => {
     loadBoards();
-  }, []);
+  }, [category]);
+
+  const handleCategoryChange = (cat) => {
+    setCategory(cat);
+  };
 
   const handleWrite = async () => {
     if (!user || !user.userId) return alert(t('list.alert.login_error'));
@@ -52,6 +57,28 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
     }
   };
 
+const formatBoardDate = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+  if (isToday) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false});
+  } else {
+    return date.toLocaleDateString();
+  }
+}
+
+  const textButtonStyle = {
+  background: 'none',
+  border: 'none',
+  color: '#5f6368', // 구글스러운 짙은 회색
+  cursor: 'pointer',
+  fontSize: '16px',
+  padding: '5px',
+  transition: 'color 0.2s'
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -62,6 +89,18 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
         </div>
       </div>
 
+      <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+        <button onClick={() => handleCategoryChange('ALL')} style={textButtonStyle}>
+          {t('category.all')}
+        </button>
+        <button onClick={() => handleCategoryChange('KOREAN')} style={textButtonStyle}>
+          {t('category.korean')}
+        </button>
+        <button onClick={() => handleCategoryChange('JAPANESE')} style={textButtonStyle}>
+          {t('category.japanese')}
+        </button>
+      </div>
+
       <button onClick={onGoToCreate} style={{ ...styles.button, marginBottom: '20px' }}>{t('list.btn_write')}</button>
       
       {Array.isArray(boards) && boards.map(board => (
@@ -69,6 +108,9 @@ export default function BoardList({ user, onBackToLobby, onSelectBoard, onGoToCr
           <h3 style={{ margin: '0 0 5px 0' }}>{board.title}</h3>
           <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>
             {t('list.writer', { nickname: board.writer?.nickname || t('list.unknown_writer') })}
+          </p>
+          <p style={{ margin: 0, fontSize: '14px', color: '#777' }}>
+            {formatBoardDate(board.createdAt)}
           </p>
         </div>
       ))}

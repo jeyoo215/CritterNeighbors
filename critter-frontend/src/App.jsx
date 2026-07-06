@@ -112,7 +112,7 @@ export default function App() {
         position: 'absolute',
         top: '15px',
         right: '15px',
-        zIndex: 1000
+        zIndex: 200
       }}>
         <LanguageSwitcher />
       </header>

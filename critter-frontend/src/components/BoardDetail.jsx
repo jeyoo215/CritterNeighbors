@@ -87,13 +87,27 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
     loadAllData();
   };
 
+  const formatBoardDate = (dateString, isDetail = false) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    return date.toLocaleString([], {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    });
+  };
+
   if (!board) return <div>{t('detail.data_load')}</div>;
 
   const btnStyle = { padding: '6px 12px', margin: '0 4px', cursor: 'pointer', borderRadius: '4px', border: 'none' };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <button onClick={onBackToList} style={{ marginBottom: '20px', ...btnStyle, background: '#eee' }}>
+      <button onClick={onBackToList} style={{ alignSelf: 'flex-end', 
+        padding: '10px 20px', background: '#eee', color: 'black', 
+        borderRadius: '20px', border: 'none', cursor: 'pointer', 
+        fontWeight: 'bold', marginBottom: '20px' }}>
         {t('detail.back_to_list')}
       </button>
       
@@ -118,7 +132,8 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
             <p style={{ color: '#888', fontSize: '14px' }}>
               {t('list.writer', { nickname: board.writer?.nickname || t('list.unknown_writer') })}
             </p>
-            <div style={{ padding: '20px', background: '#fcfcfc', borderRadius: '8px', minHeight: '100px', margin: '20px 0' }}>{board.content}</div>
+            <p style={{ color: '#888', fontSize: '14px' }}>{formatBoardDate(board.createdAt, true)}</p>
+            <div style={{ padding: '20px', background: '#f7f7f7', borderRadius: '8px', minHeight: '100px', margin: '20px 0' }}>{board.content}</div>
             {user && user.userId === board.writer?.userId && (
               <div style={{ textAlign: 'right' }}>
                 <button onClick={() => { setEditForm({title: board.title, content: board.content}); setIsEditing(true); }} style={btnStyle}>
@@ -187,7 +202,12 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
               ) : (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <strong style={{ fontSize: '14px', color: '#555' }}>{c.writer?.nickname}</strong>
+                    <p style={{margin: '5px 0', lineHeight: '1.0'}}>
+                      <strong style={{ fontSize: '16px', color: '#555' }}>{c.writer?.nickname} </strong>
+                      <span style={{ color: '#888', fontSize: '12px' }}>
+                        ({formatBoardDate(c.createdAt, true)})
+                      </span>
+                    </p>
                     {user && user.userId === c.writer?.userId && (
                       <div style={{ display: 'flex', gap: '5px' }}>
                         <button onClick={() => startEditComment(c)} style={{ border: 'none', background: 'none', color: '#888', fontSize: '12px', cursor: 'pointer' }}>
@@ -199,7 +219,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
                       </div>
                     )}
                   </div>
-                  <p style={{ margin: 0, fontSize: '15px', color: '#333' }}>{c.content}</p>
+                  <p style={{ margin: '5px', fontSize: '16px', color: '#333' }}>{c.content}</p>
                 </div>
               )}
             </div>

@@ -1,6 +1,11 @@
 {
+  "category" : {
+    "all" : "すべて",
+    "korean" : "韓国語",
+    "japanese" : "日本語"
+  },
   "list": {
-    "title": "📢質問掲示板",
+    "title": "📢掲示板📢",
     "btn_lobby" : "🏠ロビーに戻る",
     "btn_logout" : "ログアウト",
     "btn_write": "✏️投稿する",
@@ -11,7 +16,7 @@
     }
   },
   "create": {
-    "title": "✏️新しい投稿",
+    "title": "✏️新しい投稿✏️",
     "input_title": "タイトルを入力して",
     "input_content": "内容を入力して",
     "btn_submit": "載せる",

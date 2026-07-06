@@ -5,6 +5,7 @@ import com.critter.critter_backend.entity.Comment;
 import com.critter.critter_backend.event.ActionLogEvents;
 import com.critter.critter_backend.event.PointEvents;
 import com.critter.critter_backend.domain.ActionType;
+import com.critter.critter_backend.domain.BoardCategory;
 import com.critter.critter_backend.domain.PointReason;
 import com.critter.critter_backend.domain.LogTargetType;
 import com.critter.critter_backend.entity.Account;
@@ -34,13 +35,14 @@ public class BoardService {
     
     // 게시글 등록
     @Transactional
-    public Board createBoard(Long writerId, String title, String content) {
+    public Board createBoard(Long writerId, BoardCategory category, String title, String content) {
         Account writer = accountRepository.findById(writerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         Board board = new Board();
         board.setWriter(writer);
         board.setTitle(title);
+        board.setCategory(category);
         board.setContent(content);
         Board savedBoard = boardRepository.save(board);
 
@@ -53,8 +55,11 @@ public class BoardService {
 
 
     // 전체 게시글 조회
-    public List<Board> getAllBoards() {
+    public List<Board> getAllBoards(BoardCategory category) {
+        if (category == null || category == BoardCategory.ALL) {
         return boardRepository.findAllByOrderByCreatedAtDesc();
+    }
+        return boardRepository.findByCategoryOrderByCreatedAtDesc(category);
     }
 
 

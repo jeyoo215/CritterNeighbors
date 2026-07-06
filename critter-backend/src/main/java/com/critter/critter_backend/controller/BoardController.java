@@ -1,5 +1,6 @@
 package com.critter.critter_backend.controller;
 
+import com.critter.critter_backend.domain.BoardCategory;
 import com.critter.critter_backend.dto.BoardRequestDto;
 import com.critter.critter_backend.dto.CommentRequestDto;
 import com.critter.critter_backend.entity.Board;
@@ -34,7 +35,7 @@ public class BoardController {
         Long writerId = (Long) session.getAttribute("USER_ID");
         if (writerId == null) return ResponseEntity.status(401).build();
 
-        Board savedBoard = boardService.createBoard(writerId, dto.getTitle(), dto.getContent());
+        Board savedBoard = boardService.createBoard(writerId, dto.getCategory(), dto.getTitle(), dto.getContent());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
     }
 
@@ -43,8 +44,10 @@ public class BoardController {
         GET /api/boards
     */
     @GetMapping
-    public ResponseEntity<List<Board>> getAllBoards() {
-        List<Board> boards = boardService.getAllBoards();
+    public ResponseEntity<List<Board>> getAllBoards(
+        @RequestParam(name = "category", defaultValue = "ALL") BoardCategory category
+    ) {
+        List<Board> boards = boardService.getAllBoards(category);
         return ResponseEntity.ok(boards);
     }
 
