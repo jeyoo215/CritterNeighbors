@@ -1,7 +1,11 @@
 {
-  "title": "🛒クリターショップ🛒",
+  "title": "🛒ショップ🛒",
   "my_points": "ポイント：{{points}}P",
   "btn_close": "✕",
+  "shop" : {
+    "critter" : "クリター",
+    "food" : "エサ"
+  },
   "btn_adopt": {
     "adopt": "飼う",
     "no_point": "ポイント足りない",
@@ -9,7 +13,10 @@
   },
   "alert": {
     "naming": "{{name}}の名前、付けてくれる？",
-    "success": "{{name}}を飼うことにした！"
+    "success": "{{name}}を飼うことにした！",
+    "load_fail": "リストロード失敗！",
+    "buy_success" : "買ったぜ！",
+    "buy_fail" : "無理やった"
   },
   "error" : {
     "server": "サーバーが不安定みたい",
@@ -17,14 +24,27 @@
     "load_fail" : "リストを読み込めない…ちょっと待ってね！"
   },
   "item" : {
-    "critter.octopus": "タコ",
-    "critter.turtle": "カメ",
-    "critter.penguin": "ペンギン",
-    "critter.squirrel": "リス",
-    "critter.fox" : "キツネ",
-    "critter.redpanda" : "レッサーパンダ",
-    "critter.rabbit" : "ウサギ",
-    "critter.dog" : "イヌ",
-    "critter.cat" : "ネコ"
+    "critter" : {
+      "octopus": "タコ",
+      "turtle": "カメ",
+      "penguin": "ペンギン",
+      "squirrel": "リス",
+      "fox" : "キツネ",
+      "redpanda" : "レッサーパンダ",
+      "rabbit" : "ウサギ",
+      "dog" : "イヌ",
+      "cat" : "ネコ"
+    },
+    "food" : {
+      "fish" : "さかな",
+      "shrimp" : "えび",
+      "bug" : "むし",
+      "meat" : "にく",
+      "egg" : "たまご",
+      "kibble" : "フード",
+      "weed" : "くさ",
+      "bamboo" : "たけ",
+      "fruit" : "くだもの"
+    }
   }
 }

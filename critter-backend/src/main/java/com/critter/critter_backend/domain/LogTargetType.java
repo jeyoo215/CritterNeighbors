@@ -5,6 +5,7 @@ public enum LogTargetType {
     BOARD("게시글"),
     COMMENT("댓글"),
     GUESTBOOK("방명록"),
+    FOOD("먹이"),
     ROOM("방");
 
     private final String description;

@@ -13,6 +13,8 @@ const CANVAS_HEIGHT = 600;
 
 export default function EcosystemRoom({ currentRoom, currentUser, setUser, refreshUser, onLeaveRoom }) {
   const [critters, setCritters] = useState([]);
+  const [foods, setFoods] = useState([]);
+  const [selectedFood, setSelectedFood] = useState(null);
   const [guestbooks, setGuestbooks] = useState([]); // 방명록
   const [newContent, setNewContent] = useState(''); // 입력창
   const [showShop, setShowShop] = useState(false); // 상점
@@ -121,6 +123,44 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
     }
   };
 
+  const formatBoardDate = (dateString, isDetail = false) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    return date.toLocaleString([], {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    });
+  };
+
+  // 먹이
+  const handleCanvasClick = (e) => {
+    if (!stompClientRef.current || !stompClientRef.current.connected) return;
+    
+    // 🚨 마우스에 들고 있는 먹이가 없으면(null) 무시하고 종료!
+    if (!selectedFood) return; 
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // 백엔드로 먹이 투하 메시지 전송
+    stompClientRef.current.publish({
+      destination: `/app/ecosystem/${roomId}/drop-food`,
+      body: JSON.stringify({
+        x: clickX,
+        y: clickY,
+        foodType: selectedFood // "FISH" 고정이 아니라, 상점에서 산 먹이 타입을 전송!
+      })
+    });
+
+    // 🚨 1번 떨어트렸으니 마우스에서 먹이 해제 (다시 null로)
+    setSelectedFood(null); 
+  };
+
+  const isMyRoom = currentUser.userId === currentRoom.account.userId;
+
   useEffect(() => {
     loadGuestbooks();
     const socket = new SockJS('http://localhost:8080/ws-ecosystem');
@@ -141,7 +181,11 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
 
       // 데이터 구독
       client.subscribe(`/topic/ecosystem/${roomId}`, (message) => {
-        if (message.body) setCritters(JSON.parse(message.body));
+        if (message.body) {
+          const data = JSON.parse(message.body);
+          setCritters(data.critters || []);
+          setFoods(data.foods || []);
+        }
       });
 
       // 채팅 구독
@@ -156,7 +200,6 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
 
   }, [roomId, userId, currentUser.nickname]);
 
-
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
@@ -168,11 +211,9 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           justifyContent: 'flex-end', 
           gap: '10px'
         }}>
-        {currentUser.userId === currentRoom.account.userId && (
-          <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
-            {t('room.btn_shop')}
-          </button>
-        )}
+        <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
+          {t('room.btn_shop')}
+        </button>
         <button onClick={onLeaveRoom} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
           {t('room.btn_leave')}
         </button>
@@ -186,6 +227,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           currentUser={currentUser}
           setCurrentUser={setUser}
           currentRoom={currentRoom}
+          isMyRoom={isMyRoom}
           onClose={() => setShowShop(false)}
           onAdopt={async (critter) => {
             try {
@@ -197,19 +239,41 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
               alert(t('alert.adopt_fail', {message: error.message}));
             }
           }}
+          onBuyFood={(foodType) => {
+            setSelectedFood(foodType);
+            setShowShop(false);
+          }}
         />
       </div>
       )}
 
       <div style={{ display: 'flex', gap: '20px' }}>
         {/* 생태계 필드 */}
-        <div style={backgroundStyle}>
+        <div
+          style={{
+            ...backgroundStyle,
+            top: 0,
+            left: 0,
+            zIndex: 0,
+            cursor: selectedFood ? 'crosshair' : 'default'
+          }}
+          onClick={handleCanvasClick}
+        >
           {critters.map((critter) => (
             <CritterRendering 
               key={critter.critterId} 
               critter={critter} 
-              onClick={(e) => handleCritterClick(critter, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCritterClick(critter, e);
+              }}
             />
+          ))}
+          
+          {foods.map((food) => (
+            <FoodRendering
+              key={food.id}
+              food={food} />
           ))}
         </div>
 
@@ -241,7 +305,15 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           <>
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
               {guestbooks.map((gb, i) => (
-                <p key={gb.guestbookId || i}><strong>{gb.writer?.nickname || t('guestbook.no_name')}:</strong> {gb.content}</p>
+              <div key={gb.guestbookId || i} style={{ marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
+                <div>
+                  <strong>{gb.writer?.nickname || t('guestbook.no_name')}</strong>
+                  <span style={{ fontSize: '12px', color: '#888', marginLeft: '10px' }}>
+                    {formatBoardDate(gb.createdAt)}
+                  </span>
+                </div>
+                <p style={{ margin: '5px 0' }}>{gb.content}</p>
+              </div>
               ))}
             </div>
             {currentUser.userId !== currentRoom.account.userId && (
@@ -288,27 +360,27 @@ function CritterRendering({ critter, onClick }) {
   const handleError = () => setUseEmoji(true);
 
   const SCALE_MAP = {
-    OCTOPUS: 1.7,
-    TURTLE: 2.0,
-    PENGUIN: 2.5,
+    OCTOPUS: 2.0,
+    TURTLE: 1.7,
+    PENGUIN: 4.5,
     SQUIRREL: 2.0,
     FOX: 3.0,
-    REDPANDA: 2.5,
-    RABBIT: 0.7,
-    DOG: 0.7,
+    REDPANDA: 3.0,
+    RABBIT: 0.8,
+    DOG: 1.3,
     CAT: 2.5
   }
   const scale = SCALE_MAP[critter.critterType] || 1.0;
 
   const MARGIN_MAP = {
     OCTOPUS: '0px',
-    TURTLE: '20px',
-    PENGUIN: '-30px',
+    TURTLE: '12px',
+    PENGUIN: '-15px',
     SQUIRREL: '20px',
     FOX: '35px',
     REDPANDA : '30px',
     RABBIT: '0px',
-    DOG: '0px',
+    DOG: '5px',
     CAT: '30px'
   };
   const nameMargin = MARGIN_MAP[critter.critterType] || '5px';
@@ -334,8 +406,8 @@ function CritterRendering({ critter, onClick }) {
         top: `${critter.y}px`, 
         transform: 'translate(-50%, -50%)',
         transition: 'left 0.033s linear, top 0.033s linear',
-        width: '60px', // 이름을 담으려고 조금 넓혔어
-        height: '60px',
+        width: '35px', // 이름을 담으려고 조금 넓혔어
+        height: '35px',
         display: 'flex',
         flexDirection: 'column', // 위아래로 쌓기
         alignItems: 'center',
@@ -364,8 +436,65 @@ function CritterRendering({ critter, onClick }) {
         whiteSpace: 'nowrap', // 이름 길어도 한 줄 유지
         pointerEvents: 'none' // 이름표 클릭 시 동물 클릭 안 되게 방지
       }}>
-        {critter.name || "이름없음"}
+        {critter.name || t('room.no_name')}
       </div>
+    </div>
+  );
+}
+
+// 음식
+function FoodRendering({ food }) {
+  const [useEmoji, setUseEmoji] = useState(false);
+  
+  // 1. 픽셀 아트 이미지 경로 (public/sprites/food/ 타입명.png)
+  const imagePath = `/sprites/food/${food.type}.png`;
+
+  const SCALE_MAP = {
+    SHRIMP: 1.2,
+    FISH: 1.7,
+    BUG: 3.0,
+    MEAT: 1.6,
+    EGG: 0.8,
+    KIBBLE: 1.5,
+    WEED: 1.5,
+    BAMBOO: 3.0,
+    FRUIT: 1.5
+  }
+  const scale = SCALE_MAP[food.type] || 1.0;
+  
+  // 2. 이미지가 없을 때 보여줄 예비 이모지 맵
+  const EMOJI_MAP = {
+    FISH: '🐟', SHRIMP: '🦐', BUG: '🐛',
+    MEAT: '🍖', EGG: '🥚', KIBBLE: '🥫',
+    WEED: '🌿', BAMBOO: '🎋', FRUIT: '🍓'
+  };
+
+  return (
+    <div
+      style={{ 
+        position: 'absolute', 
+        left: `${food.x}px`, 
+        top: `${food.y}px`, 
+        transform: 'translate(-50%, -50%)',
+        transition: 'left 0.033s linear, top 0.033s linear',
+        width: '20px',
+        height: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'none'
+      }}
+    >
+      {useEmoji ? (
+        <div style={{ fontSize: '24px' }}>{EMOJI_MAP[food.type] || '🍔'}</div>
+      ) : (
+        <img 
+          src={imagePath} 
+          alt={food.type} 
+          onError={() => setUseEmoji(true)} 
+          style={{ width: '100%', height: '100%', transform: `scale(${scale})`, objectFit: 'contain' }}
+        />
+      )}
     </div>
   );
 }

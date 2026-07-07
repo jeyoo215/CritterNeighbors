@@ -1,27 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { fetchShopItems, adoptCritterApi, buyFoodApi } from '../api/shopApi';
 
-export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom, onClose, onAdoptSuccess }) {
+export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, currentRoom, onBuyFood, onClose, onAdoptSuccess }) {
   //roomTheme, userPoints
   const [critters, setCritters] = useState([]);
   // 각 크리처별로 유저가 입력한 이름을 저장할 객체 상태
   const [nicknames, setNicknames] = useState({});
+  const [activeTab, setActiveTab] = useState('CRITTER');
 
   const { t } = useTranslation('shop');
 
+  const FOOD_ITEMS = [
+    { type: 'FISH', price: 3 },
+    { type: 'SHRIMP', price: 3 },
+    { type: 'MEAT', price: 3 },
+    { type: 'FRUIT', price: 3 },
+    { type: 'WEED', price: 3 },
+    { type: 'BUG', price: 3 },
+    { type: 'EGG', price: 3 },
+    { type: 'KIBBLE', price: 3 },
+    { type: 'BAMBOO', price: 3 },
+  ];
+
   // 1. 서버에서 상점 아이템 목록 가져오기
   useEffect(() => {
-    const fetchShopItems = async () => {
+    const loadItems = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/ecosystems/${roomId}/critters/shop-items`);
-        if (!response.ok) throw new Error(t('error.load_fail'));
-        const data = await response.json();
-        setCritters(data);
+        const data = await fetchShopItems(roomId);
+        setCritters(data.critters || []);
       } catch (error) {
-        console.error("상점 목록 로딩 실패:", error);
+        alert(t('alert.load_fail'));
       }
     };
-    fetchShopItems();
+    loadItems();
   }, [roomId]);
 
   // 2. 입양 요청 처리
@@ -32,33 +44,34 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
     const finalName = name.trim() === '' ? translatedName : name;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/ecosystems/${roomId}/critters`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: currentUser.userId,
-          critterName: finalName,
-          critterType: critter.type
-        }),
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentUser(data.user);
-        alert(t('alert.success', {name: finalName}));
-        if (onAdoptSuccess) onAdoptSuccess(); 
-        onClose();
-        
-      } else {
-        const errorMsg = await response.text();
-        alert(errorMsg || t('error.adopt_fail'));
-      }
+      const data = await adoptCritterApi(roomId, currentUser.userId, finalName, critter.type);
+      setCurrentUser(data.user);
+      alert(t('alert.success', { name: finalName }));
+      if (onAdoptSuccess) onAdoptSuccess();
+      onClose();
     } catch (error) {
       console.error("입양 실패:", error);
-      alert(t('error.server'));
+      alert(t('error.adopt_fail')); // 에러 처리도 간단해짐!
     }
   };
+
+  // 먹이 구매
+  const handleBuyFood = async (food) => {
+  try {
+    await buyFoodApi(roomId, currentUser.userId, food.type);
+    setCurrentUser(prev => ({ ...prev, point: prev.point - food.price }));
+
+    if (onBuyFood) {
+        onBuyFood(food.type);
+    }
+
+    alert(t('alert.buy_success'));
+    onClose();
+  } catch (error) {
+    alert(t('alert.buy_fail'));
+    console.log("구매 실패 이유: " + error);
+  }
+};
 
   return (
     <div style={{ 
@@ -88,45 +101,48 @@ export default function Shop({ roomId, currentUser, setCurrentUser, currentRoom,
       <h3 style={{ marginTop: 0 }}>{t('title')}</h3>
       <p>{t('my_points', {points: currentUser.point})}</p>
       
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(3, 1fr)', // 3열로 고정
-        gap: '10px', 
-        marginTop: '20px',
-        maxHeight: '400px', // 9개 정도 들어갈 높이
-        overflowY: 'auto',  // 넘치면 스크롤
-        padding: '5px'
-      }}>
-        {critters.map((critter) => {
+      {/* 🟢 탭 버튼 */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        {isMyRoom && (
+          <button 
+            onClick={() => setActiveTab('CRITTER')} 
+            style={{ 
+              padding: '8px 16px', 
+              background: activeTab === 'CRITTER' ? '#3498db' : '#ccc', 
+              color: 'white', border: 'none', borderRadius: '4px' 
+            }}
+          >
+            {t('shop.critter')}
+          </button>
+        )}
+        <button onClick={() => setActiveTab('FOOD')} style={{ padding: '8px 16px', background: activeTab === 'FOOD' ? '#e67e22' : '#ccc', color: 'white', border: 'none', borderRadius: '4px' }}>
+          {t('shop.food')}
+        </button>
+      </div>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', maxHeight: '400px', overflowY: 'auto' }}>
+        {/* 🐾 크리터 탭 */}
+        {activeTab === 'CRITTER' && critters.map((critter) => {
           const isCompatible = critter.theme === currentRoom.roomTheme;
           return (
-            <div key={critter.id} style={{ 
-              border: '1px solid #ccc', 
-              padding: '10px', 
-              borderRadius: '8px', 
-              background: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between', // 내용물 정렬
-              fontSize: '12px' // 폰트 크기 조절
-            }}>
-              <h4 style={{ margin: '0 0 5px 0' }}>{t(`item.${critter.name}`)}</h4>
-              <p style={{ margin: '0' }}>{critter.theme}</p>
-              <p style={{ margin: '0 0 10px 0' }}>{critter.price}P</p>
-              
-              <button 
-                disabled={!isCompatible || currentUser.point < critter.price}
-                onClick={() => handleAdopt(critter)}
-                style={{ padding: '5px', cursor: 'pointer', width: '100%' }}
-              >
-                {isCompatible ? (currentUser.point >= critter.price 
-                  ? t('btn_adopt.adopt')
-                  : t('btn_adpot.no_point'))
-                  : t('btn_adopt.incompatible')}
+            <div key={critter.id} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px', background: 'white', textAlign: 'center', fontSize: '12px' }}>
+              <h4>{t(`item.${critter.name}`)}</h4>
+              <p>{critter.price}P</p>
+              <button disabled={!isCompatible || currentUser.point < critter.price} onClick={() => handleAdopt(critter)} style={{ width: '100%' }}>
+                {isCompatible ? (currentUser.point >= critter.price ? t('btn_adopt.adopt') : t('btn_adpot.no_point')) : t('btn_adopt.incompatible')}
               </button>
             </div>
           );
         })}
+
+        {/* 🍔 먹이 탭 */}
+        {activeTab === 'FOOD' && FOOD_ITEMS.map((food) => (
+          <div key={food.type} style={{ border: '1px solid #e67e22', padding: '10px', borderRadius: '8px', background: 'white', textAlign: 'center', fontSize: '12px' }}>
+            <h4>{t(`item.food.${food.type.toLowerCase()}`)}</h4>
+            <p>{food.price}P</p>
+            <button onClick={() => handleBuyFood(food)} style={{ width: '100%', background: '#e67e22', color: 'white', border: 'none' }}>구매</button>
+          </div>
+        ))}
       </div>
     </div>
   );

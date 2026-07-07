@@ -6,5 +6,6 @@ public enum ActionType {
     POST_GUESTBOOK,
     ENTER_ROOM, CREATE_ROOM,
     ADOPT_CRITTER,
+    BUY_FOOD, DROP_FOOD,
     INTERACT_PANIC
 }

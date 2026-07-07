@@ -11,6 +11,7 @@ public enum PointReason {
     POST_GUESTBOOK(LogTargetType.GUESTBOOK, ActionType.POST_GUESTBOOK),
     DAILY_VISIT_REWARD(null, ActionType.ENTER_ROOM),
     ADOPT_CRITTER(LogTargetType.CRITTER, ActionType.ADOPT_CRITTER),
+    BUY_FOOD(LogTargetType.FOOD, ActionType.BUY_FOOD),
     CREATE_ROOM(LogTargetType.ROOM, ActionType.CREATE_ROOM);
 
     private final LogTargetType targetType;

@@ -1,11 +1,13 @@
 package com.critter.critter_backend.controller;
 
 import com.critter.critter_backend.domain.CritterType;
+import com.critter.critter_backend.domain.FoodType;
 import com.critter.critter_backend.dto.CritterLocationDto;
 import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.entity.Critter;
 import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.service.CritterService;
+import com.critter.critter_backend.service.FoodService;
 import com.critter.critter_backend.service.ShopCritterService;
 import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 
@@ -18,22 +20,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/ecosystems/{roomId}/critters")
+@RequestMapping("/api/ecosystems/{roomId}/shop")
 @CrossOrigin(origins = "http://localhost:5173")
-public class CritterController {
+public class ShopController {
 
     private final ShopCritterService shopCritterService;
     private final CritterService critterService;
     private final EcosystemMemoryStorage memoryStorage;
     private final AccountRepository accountRepository;
+    private final FoodService foodService;
 
-    @PostMapping
+    // 불러오기
+    @GetMapping("/items")
+    public ResponseEntity<Map<String, Object>> getShopItems(@PathVariable(required = false) Long roomId) {
+        Map<String, Object> items = new HashMap<>();
+        items.put("critters", shopCritterService.getAllShopCritter());
+        return ResponseEntity.ok(items);
+    }
+
+    @PostMapping("/adopt")
     public ResponseEntity<?> adoptCritter(
         @PathVariable("roomId") Long roomId,
         @RequestBody Map<String, Object> requestBody,
@@ -76,8 +86,21 @@ public class CritterController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/shop-items")
-    public ResponseEntity<List<Map<String, Object>>> getShopItems() {
-        return ResponseEntity.ok(shopCritterService.getAllShopCritter());
+
+    @PostMapping("/buy-food")
+    public ResponseEntity<?> buyFood(@RequestBody Map<String, Object> request, HttpSession session) {
+        Long userId = (Long) session.getAttribute("USER_ID");
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        FoodType foodType = FoodType.valueOf(request.get("foodType").toString());
+        Long roomId = Long.valueOf(request.get("roomId").toString());
+
+        // 🟢 서비스 호출! (이제 모든 로직은 FoodService 안에 있어요)
+        try {
+            foodService.purchaseFood(userId, roomId, foodType);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
