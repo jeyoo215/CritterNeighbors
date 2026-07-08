@@ -68,11 +68,13 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
 
     try {
       await postGuestbook(roomId, userId, newContent);
+
+      alert(t('alert.guestbook'));
+      setNewContent('');
+      loadGuestbooks();
       if (refreshUser) {
         await refreshUser(); 
       }
-      setNewContent('');
-      loadGuestbooks();
     } catch (error) {
       if (error && error.message) {
         alert(error.message);
@@ -116,10 +118,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
 
   const visit = async () => {
     try {
-        await api.post(`/users/visit/${roomId}`);
-        if (refreshUser) refreshUser();
+        const res = await api.post(`/users/visit/${roomId}`);
+        if (res.data === true) {
+          alert(t('alert.visit_reward'));
+          if (refreshUser) await refreshUser();
+        }
     } catch (err) {
-        console.error("방문 포인트 적립 실패:", err);
     }
   };
 

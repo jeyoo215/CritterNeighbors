@@ -50,12 +50,20 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
   // 핸들러 함수들
   const handleCommentSubmit = async () => {
     if (!comment) return alert(t('detail.alert.content_error'));
-    await postComment(boardId, { writerId: user.userId, content: comment });
-    if (refreshUser) {
+    try {
+      await postComment(boardId, { writerId: user.userId, content: comment });
+      
+      alert(t('detail.alert.success'));
+      
+      setComment('');
+      loadAllData();
+      
+      if (refreshUser) {
         await refreshUser(); 
+      }
+    } catch (e) {
+      alert(t('detail.alert.fail'));
     }
-    setComment('');
-    loadAllData();
   };
 
   const handleDeleteBoard = async () => {

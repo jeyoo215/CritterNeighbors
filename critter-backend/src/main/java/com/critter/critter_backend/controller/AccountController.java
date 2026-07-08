@@ -53,14 +53,14 @@ public class AccountController {
     }
 
     @PostMapping("/visit/{roomId}")
-    public ResponseEntity<String> visitRoom(@PathVariable Long roomId, HttpSession session) {
+    public ResponseEntity<Boolean> visitRoom(@PathVariable Long roomId, HttpSession session) {
         Long userId = (Long) session.getAttribute("USER_ID");
 
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        pointService.processVisit(userId, roomId);
-        return ResponseEntity.noContent().build();
+        boolean isEarned = pointService.processVisit(userId, roomId);
+        return ResponseEntity.ok(isEarned);
     }
 }

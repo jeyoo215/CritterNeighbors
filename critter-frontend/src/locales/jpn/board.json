@@ -23,7 +23,7 @@
     "btn_cancel": "キャンセル",
     "alert" : {
       "content_error": "タイトルと内容はきちんと入力してね！",
-      "success": "投稿できたよー！",
+      "success": "投稿できたよー！5ポイントも獲得！",
       "write_error": "投稿できなかったー😭"
     }
   },
@@ -41,6 +41,8 @@
     "prev_board" : "◀ 前の投稿： ",
     "next_board" : "▶ 次の投稿： ",
     "alert" : {
+      "success" : "コメントできたよー！3ポイント獲得！",
+      "fail" : "コメントできなかったー😭",
       "content_error" : "コメントの内容を入力して！"
     }
   }

@@ -48,19 +48,20 @@ public class PointService {
     
 
     @Transactional
-    public void processVisit(Long userId, Long roomId) {
+    public boolean processVisit(Long userId, Long roomId) {
         Ecosystem room = ecosystemRepository.findById(roomId)
             .orElseThrow(() -> new RuntimeException("방을 찾을 수 없습니다."));
 
         if (room.getAccount().getUserId().equals(userId)) {
-            return;
+            return false;
         }
 
         if (isAlreadyDoneToday(userId, PointReason.DAILY_VISIT_REWARD)) {
-            return;
+            return false;
         }
 
         earn(userId, 10L, PointReason.DAILY_VISIT_REWARD);
+        return true;
     }
 
 
