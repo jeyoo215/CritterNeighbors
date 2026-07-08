@@ -196,7 +196,7 @@ export default function BoardDetail({ boardId, setBoardId, user, onBackToList, r
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <input value={editCommentContent} onChange={(e) => setEditCommentContent(e.target.value)} style={{ flex: 1, padding: '8px' }} />
                   <button onClick={() => handleUpdateComment(c.commentId)} style={btnStyle}>
-                    {t('detail.save')}
+                    {t('detail.btn_save')}
                   </button>
                 </div>
               ) : (

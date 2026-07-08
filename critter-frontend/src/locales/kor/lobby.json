@@ -18,7 +18,8 @@
   "recommended_rooms": {
     "title": "🌐 여행 가기 🌐",
     "empty": "현재 여행할 수 있는 다른 생태계가 없습니다.",
-    "enter": "🚀 구경가기"
+    "enter": "🚀 구경가기",
+    "refresh" : "새로고침"
   },
   "error" : {
     "empty": "방 이름을 입력해 주세요!",

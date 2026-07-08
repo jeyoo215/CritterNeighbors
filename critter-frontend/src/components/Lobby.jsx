@@ -167,7 +167,38 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
       {/* 🌐 추천 생태계 목록 섹션 */}
       <div style={{ background: '#fff3e0', padding: '20px', borderRadius: '8px', marginTop: '20px', border: '1px solid #ffe0b2' }}>
-        <h3>{t('recommended_rooms.title')}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '30px', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0 }}>
+            {t('recommended_rooms.title')}
+          </h3>
+          <button 
+            onClick={fetchRecommendedRooms}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: '#fff',
+              color: '#fb8c00',
+              border: '1px solid #fb8c00',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#fb8c00';
+              e.currentTarget.style.color = '#white';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#fff';
+              e.currentTarget.style.color = '#fb8c00';
+            }}
+          >
+            🔄 {t('recommended_rooms.refresh')} 
+          </button>
+        </div>
         {recommendedRooms.length === 0 ? (
           <div style={{ color: '#666', padding: '10px 0' }}>
             <p>{t('recommended_rooms.empty')}</p>
@@ -192,7 +223,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
                   style={{ 
                     width: '100%', 
                     padding: '8px', 
-                    backgroundColor: '#fb8c00', // 추천 생태계는 따뜻한 오렌지색!
+                    backgroundColor: '#fb8c00',
                     color: 'white', 
                     border: 'none', 
                     borderRadius: '4px', 

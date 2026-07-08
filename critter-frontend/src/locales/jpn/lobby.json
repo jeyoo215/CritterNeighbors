@@ -18,7 +18,8 @@
   "recommended_rooms": {
     "title": "🌐旅立つ🌐",
     "empty": "まだ他の部屋はないみたい…",
-    "enter": "🚀みてみる"
+    "enter": "🚀みてみる",
+    "refresh" : "リフレッシュ"
   },
   "error" : {
     "empty": "部屋の名前は必ず入力して！",
