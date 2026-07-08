@@ -212,6 +212,12 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
     client.activate();
     stompClientRef.current = client;
 
+    return () => {
+        if (stompClientRef.current) {
+            stompClientRef.current.deactivate();
+        }
+    };
+
   }, [roomId, userId, currentUser.nickname]);
 
   return (

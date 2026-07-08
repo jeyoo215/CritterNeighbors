@@ -74,7 +74,6 @@ public class EcosystemMemoryStorage {
 
     public void unloadRoom(Long roomId) {
         roomCritterMap.remove(roomId);
-        System.out.println(roomId + "번 방에 접속자가 없어 메모리에서 언로드되었습니다.");
     }
 
     public void addCritter(Long roomId, CritterLocationDto critter) {

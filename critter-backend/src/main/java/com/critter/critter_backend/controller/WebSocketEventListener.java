@@ -26,8 +26,6 @@ public class WebSocketEventListener {
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
-        
-        log.info("[소켓 연결] 세션 ID: {}", sessionId);
 
         String roomIdStr = headerAccessor.getFirstNativeHeader("roomId");
         
@@ -37,15 +35,12 @@ public class WebSocketEventListener {
 
         Long roomId = Long.valueOf(roomIdStr);
         memoryStorage.addSession(roomId, sessionId);
-        log.info("[소켓 연결] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
-
-        log.info("[소켓 해제] 세션 ID: {}", sessionId);
 
         Long roomId = memoryStorage.getRoomIdBySession(sessionId);
         
@@ -54,18 +49,8 @@ public class WebSocketEventListener {
         }
 
         memoryStorage.removeSession(roomId, sessionId);
-        log.info("[소켓 해제] 방 번호: {}, 세션 ID: {}", roomId, sessionId);
 
         if (!memoryStorage.hasPassengers(roomId)) {
-            List<CritterLocationDto> memoryCritters = memoryStorage.getCrittersByRoom(roomId);
-
-            for (CritterLocationDto dto : memoryCritters) {
-                critterRepository.findById(dto.getCritterId()).ifPresent(critter -> {
-                    critter.setStatus(CritterStatus.valueOf(dto.getStatus())); 
-                    critterRepository.save(critter);
-                });
-            }
-
             memoryStorage.unloadRoom(roomId);
         }
     }
