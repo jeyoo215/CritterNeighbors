@@ -34,7 +34,7 @@ public class EcosystemTickScheduler {
 
         for (Long roomId : activeRoomIds) {
             List<CritterLocationDto> critters = memoryStorage.getCrittersByRoom(roomId);
-            List<Food> foods = memoryStorage.getFoods(roomId); // 🍔 해당 방의 먹이 리스트 가져오기
+            List<Food> foods = memoryStorage.getFoods(roomId);
 
             foods.forEach(f -> f.setEatingCount(0));
 
@@ -60,7 +60,7 @@ public class EcosystemTickScheduler {
                     }
 
                     Food targetFood = null;
-                    double minDistance = 400.0;
+                    double minDistance = 600.0;
 
                     // 자기 주변에 좋아하는 먹이가 있는지 레이더 스캔!
                     for (Food food : foods) {

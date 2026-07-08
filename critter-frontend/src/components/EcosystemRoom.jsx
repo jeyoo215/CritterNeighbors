@@ -159,6 +159,16 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
     setSelectedFood(null); 
   };
 
+  const handleLeaveRoomClick = () => {
+    if (selectedFood !== null && selectedFood !== undefined) { 
+      if (window.confirm(t('alert.ifnotfeed'))) {
+        onLeaveRoom();
+      }
+    } else {
+      onLeaveRoom();
+    }
+  };
+
   const isMyRoom = currentUser.userId === currentRoom.account.userId;
 
   useEffect(() => {
@@ -214,7 +224,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
         <button onClick={() => setShowShop(true)} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
           {t('room.btn_shop')}
         </button>
-        <button onClick={onLeaveRoom} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
+        <button onClick={handleLeaveRoomClick} style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px' }}>
           {t('room.btn_leave')}
         </button>
         </div>

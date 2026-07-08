@@ -14,7 +14,8 @@
     "login_required": "로그인이 필요한 기능입니다.",
     "error" : "오류가 발생했습니다.",
     "adopt_success": "{{name}} 입양 성공!",
-    "adopt_fail": "입양 실패: {{message}}"
+    "adopt_fail": "입양 실패: {{message}}",
+    "ifnotfeed" : "아직 먹이를 배치하지 않았습니다. 그냥 나가면 포인트가 소멸됩니다. 정말 나가시겠습니까?"
   },
   "guestbook" : {
     "no_name" : "알 수 없음",

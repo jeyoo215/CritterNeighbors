@@ -13,7 +13,8 @@
     "login_required": "ログインしてないみたいだよ",
     "error" : "問題発生！ちょっと待ってね",
     "adopt_success": "{{name}}を飼い始めた！",
-    "adopt_fail": "失敗：{{message}}"
+    "adopt_fail": "失敗：{{message}}",
+    "ifnotfeed" : "まだエサやってないよ！ポイントは戻ってこない！本当に出ちゃうの？"
   },
   "guestbook" : {
     "no_name" : "名無しさん",

@@ -7,7 +7,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
   const [critters, setCritters] = useState([]);
   // 각 크리처별로 유저가 입력한 이름을 저장할 객체 상태
   const [nicknames, setNicknames] = useState({});
-  const [activeTab, setActiveTab] = useState('CRITTER');
+  const [activeTab, setActiveTab] = useState(isMyRoom ? 'CRITTER' : 'FOOD');
 
   const { t } = useTranslation('shop');
 

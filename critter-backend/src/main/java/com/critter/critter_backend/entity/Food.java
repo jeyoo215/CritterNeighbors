@@ -33,7 +33,7 @@ public class Food {
     }
 
     @JsonProperty("isSinking")
-    private boolean isSinking; // ocean인 경우
+    private boolean isSinking;
     
     public void startEating() {
         this.eatingCount++;
