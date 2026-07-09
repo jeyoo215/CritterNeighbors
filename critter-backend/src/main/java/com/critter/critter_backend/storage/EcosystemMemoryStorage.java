@@ -18,10 +18,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Slf4j
 @Component
 public class EcosystemMemoryStorage {
+    // 실시간 통신을 위한 메모리 저장소
 
     private final Map<Long, List<CritterLocationDto>> roomCritterMap = new ConcurrentHashMap<>();
+    // 크리터의 좌표 정보 저장
     private final Map<Long, Set<String>> roomSessionMap = new ConcurrentHashMap<>();
+    // 방에 접속한 유저 세션 정보 (방->유저)
     private final Map<String, Long> sessionToRoomMap = new ConcurrentHashMap<>();
+    // 유저가 어떤 방에 접속했는지에 대한 정보 (유저->방)
+    private final Map<Long, String> roomThemes = new ConcurrentHashMap<>();
+    // 방 테마 정보
+    private final Map<Long, List<Food>> roomFoods = new ConcurrentHashMap<>();
+    // 방에 있는 먹이 정보
+
+    /*
+        * ConcurrentHashMap
+        - 일반 HashMap의 경우 멀티스레드 환경에서 동시성 제어가 되지 않음(write와 read 동시 진행 시 데이터 훼손 위험)
+        - 멀티스레드로 동작해야 하므로 동시에 접근이 가능한 ConcurrentHashMap 사용
+        +) SynchronizedMap이나 Hashtable의 경우도 동시 접근 가능하나 맵 전체에 락을 걸어 성능 병목 우려
+           ConcurrentHashMap은 분할 제어 (락 분할?)
+    */
 
     public void addSession(Long roomId, String sessionId) {
         roomSessionMap.computeIfAbsent(roomId, k -> new CopyOnWriteArraySet<>()).add(sessionId);
@@ -53,8 +69,6 @@ public class EcosystemMemoryStorage {
         return sessionToRoomMap.get(sessionId);
     }
 
-    private final Map<Long, String> roomThemes = new ConcurrentHashMap<>();
-
     public void registerRoom(Long roomId, String theme) {
         roomThemes.put(roomId, theme);
     }
@@ -63,7 +77,6 @@ public class EcosystemMemoryStorage {
         return roomThemes.getOrDefault(roomId, "DEFAULT");
     }
 
-    // 🟢 여기도 CritterLocationDto로 받아주기!
     public void loadCritters(Long roomId, List<CritterLocationDto> critters) {
         roomCritterMap.put(roomId, new ArrayList<>(critters));
     }
@@ -77,18 +90,10 @@ public class EcosystemMemoryStorage {
     }
 
     public void addCritter(Long roomId, CritterLocationDto critter) {
-        // 1. 방에 있는 동물 리스트를 가져와 (없으면 새로 만들어)
         List<CritterLocationDto> critters = roomCritterMap.computeIfAbsent(roomId, k -> new ArrayList<>());
-    
-        // 2. 그 리스트에  투입
         critters.add(critter);
-        log.info("메모리 저장소: {}번 방에 생명체 투입 성공!", roomId);
     }
 
-
-
-    // 먹이
-    private final Map<Long, List<Food>> roomFoods = new ConcurrentHashMap<>();
 
     public void addFood(Long roomId, Food food) {
         roomFoods.computeIfAbsent(roomId, k -> new CopyOnWriteArrayList<>()).add(food);

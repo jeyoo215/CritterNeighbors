@@ -1,8 +1,5 @@
 package com.critter.critter_backend.controller;
 
-import com.critter.critter_backend.domain.CritterStatus;
-import com.critter.critter_backend.dto.CritterLocationDto;
-import com.critter.critter_backend.repository.CritterRepository;
 import com.critter.critter_backend.storage.EcosystemMemoryStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.List;
 
 @Slf4j
 @Component
@@ -20,8 +16,6 @@ import java.util.List;
 public class WebSocketEventListener {
 
     private final EcosystemMemoryStorage memoryStorage;
-    private final CritterRepository critterRepository;
-
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -37,6 +31,7 @@ public class WebSocketEventListener {
         memoryStorage.addSession(roomId, sessionId);
     }
 
+    
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());

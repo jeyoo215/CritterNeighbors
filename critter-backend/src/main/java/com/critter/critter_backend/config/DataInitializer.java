@@ -23,6 +23,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,25 +38,27 @@ public class DataInitializer {
     private final CommentRepository commentRepository;
     private final ShopCritterRepository critterTemplateRepository;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Bean
     public CommandLineRunner initData() {
         return args -> {
             Account user1 = accountRepository.findByUserName("test").orElseGet(() -> 
                 accountRepository.save(Account.builder()
                             .userName("test")
-                            .password("1234")
+                            .password(passwordEncoder.encode("1234"))
                             .nickname("はな")
                             .point(10000L)
                             .build()));
             
             Account user2 = accountRepository.findByUserName("testing").orElseGet(() -> 
-                accountRepository.save(Account.builder().userName("testing").password("1234").nickname("ぺんぎんちゃ").point(1000L).build()));
+                accountRepository.save(Account.builder().userName("testing").password(passwordEncoder.encode("1234")).nickname("ぺんぎんちゃ").point(1000L).build()));
 
             Account user3 = accountRepository.findByUserName("test2").orElseGet(() -> 
-                accountRepository.save(Account.builder().userName("test2").password("1234").nickname("ぺん").build()));
+                accountRepository.save(Account.builder().userName("test2").password(passwordEncoder.encode("1234")).nickname("ぺん").build()));
 
             Account user4 = accountRepository.findByUserName("test3").orElseGet(() -> 
-                accountRepository.save(Account.builder().userName("test3").password("1234").nickname("ぎんんんぎん").build()));
+                accountRepository.save(Account.builder().userName("test3").password(passwordEncoder.encode("1234")).nickname("ぎんんんぎん").build()));
 
             if (ecosystemRepository.count() == 0) {
                 Ecosystem room1 = Ecosystem.builder()

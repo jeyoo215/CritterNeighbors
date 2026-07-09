@@ -5,6 +5,8 @@ import com.critter.critter_backend.exception.BadCredentialsException;
 import com.critter.critter_backend.exception.DuplicateUsernameException;
 import com.critter.critter_backend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public Account getUserById(Long userId) {
         return accountRepository.findById(userId)
@@ -24,15 +27,15 @@ public class AccountService {
      */
     @Transactional
     public Account register(String userName, String password, String nickname) {
-        // 🚨 아이디 중복 체크 예외 처리 (네 AccountRepository에 메서드명이 findByUserName 인지 findByUsername 인지 체크!)
         if (accountRepository.findByUserName(userName).isPresent()) {
             throw new DuplicateUsernameException("이미 존재하는 아이디입니다.");
         }
         
-        // 컨트롤러에서 받아온 날것의 데이터를 엔티티로 조립해서 저장해줌
+        String encodedPassword = passwordEncoder.encode(password);
+
         Account account = Account.builder()
                 .userName(userName)
-                .password(password)
+                .password(encodedPassword)
                 .nickname(nickname)
                 .build();
         
@@ -49,8 +52,12 @@ public class AccountService {
         Account account = accountRepository.findByUserName(userName)
                 .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        // 비밀번호 일치 체크 예외 처리
-        if (!account.getPassword().equals(password)) {
+        System.out.println("입력한 평문 비번: " + password);
+        System.out.println("DB에 저장된 암호문: " + account.getPassword());
+        boolean isMatch = passwordEncoder.matches(password, account.getPassword());
+        System.out.println("비밀번호 일치 여부: " + isMatch);
+
+        if (!isMatch) {
             throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
