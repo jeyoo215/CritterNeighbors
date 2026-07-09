@@ -22,10 +22,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 @RequiredArgsConstructor
 // final로 선언된 녀석들을 자동으로 파라미터로 받는 생성자 생성
+@Profile("local")
 public class DataInitializer {
 
     private final EcosystemRepository ecosystemRepository;
@@ -113,33 +115,16 @@ public class DataInitializer {
                 ecosystemRepository.save(room8);
 
                 // 방명록 생성
-                Guestbook guestbook1 = Guestbook.builder()
-                                                .ecosystem(room1)
-                                                .writer(user2)
-                                                .content("펭평...")
-                                                .build();
-                guestbookRepository.save(guestbook1);
-
-                Guestbook guestbook2 = Guestbook.builder()
-                                                .ecosystem(room2)
-                                                .writer(user1)
-                                                .content("펭귄은 없네요~~^^~~")
-                                                .build();
-                guestbookRepository.save(guestbook2);
-
-                Guestbook guestbook3 = Guestbook.builder()
-                                                .ecosystem(room4)
-                                                .writer(user1)
-                                                .content("놀러왔어요~^^")
-                                                .build();
-                guestbookRepository.save(guestbook3);
-
-                Guestbook guestbook4 = Guestbook.builder()
-                                                .ecosystem(room5)
-                                                .writer(user4)
-                                                .content("좋은 하루~^^")
-                                                .build();
-                guestbookRepository.save(guestbook4);
+                if (guestbookRepository.count() == 0 && ecosystemRepository.count() >= 5) {
+                    // 저장된 방들을 순서대로 확보해서 유연하게 매핑
+                    var rooms = ecosystemRepository.findAll();
+                    
+                    guestbookRepository.save(Guestbook.builder().ecosystem(rooms.get(0)).writer(user2).content("펭평...").build());
+                    guestbookRepository.save(Guestbook.builder().ecosystem(rooms.get(1)).writer(user1).content("펭귄은 없네요~~^^~~").build());
+                    guestbookRepository.save(Guestbook.builder().ecosystem(rooms.get(3)).writer(user1).content("놀러왔어요~^^").build());
+                    guestbookRepository.save(Guestbook.builder().ecosystem(rooms.get(4)).writer(user4).content("좋은 하루~^^").build());
+                    System.out.println("방명록 데이터 생성 완료");
+                }
             }
 
             // 게시글 및 댓글 생성
