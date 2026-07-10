@@ -224,7 +224,10 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: `${CANVAS_WIDTH}px`, display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
         <h3>
-          {t('room.title', {nickname : currentRoom.account.nickname, theme: currentRoom.roomTheme})}
+          {isMyRoom 
+          ? t('room.title_mine', { theme: currentRoom.roomTheme }) 
+          : t('room.title_other', { nickname: currentRoom.account.nickname, theme: currentRoom.roomTheme })
+          }
         </h3>
         <div style={{ 
           display: 'flex', 

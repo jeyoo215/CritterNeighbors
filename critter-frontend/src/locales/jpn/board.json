@@ -5,7 +5,7 @@
     "japanese" : "日本語"
   },
   "list": {
-    "title": "📢掲示板📢",
+    "title": "📢クリター掲示板📢",
     "btn_lobby" : "🏠ロビーに戻る",
     "btn_logout" : "ログアウト",
     "btn_write": "✏️投稿する",
@@ -37,7 +37,7 @@
     "comment_title": "💬コメント {{count}}個",
     "comment_placeholder": "優しいコメントで幸せになれるよ！🍀",
     "btn_comment_submit": "送る",
-    "data_load" : "데이터 로딩 중...",
+    "data_load" : "データロード中…",
     "prev_board" : "◀ 前の投稿： ",
     "next_board" : "▶ 次の投稿： ",
     "alert" : {

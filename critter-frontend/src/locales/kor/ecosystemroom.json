@@ -1,6 +1,7 @@
 {
   "room": {
-    "title": "🏞️현재 관찰 중 : {{nickname}}님의 {{theme}} 생태계",
+    "title_mine": "🏞️현재 관찰 중 : 나의 {{theme}} 생태계",
+    "title_other": "🏞️현재 관찰 중 : {{nickname}}님의 {{theme}} 생태계",
     "btn_shop": "🛒 상점 열기",
     "btn_leave": "🚪 방 나가기",
     "no_name" : "이름없음"

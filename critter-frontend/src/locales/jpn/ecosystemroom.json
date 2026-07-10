@@ -1,6 +1,7 @@
 {
   "room": {
-    "title": "🏞️現在見てるのは{{nickname}}さんの{{theme}}な部屋だよ！",
+    "title_mine": "🏞️現在見てるのは私の{{theme}}な部屋だよ！",
+    "title_other": "🏞️現在見てるのは{{nickname}}さんの{{theme}}な部屋だよ！",
     "btn_shop": "🛒買い物しよ",
     "btn_leave": "🚪部屋を出る"
   },
