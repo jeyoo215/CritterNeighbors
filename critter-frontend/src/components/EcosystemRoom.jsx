@@ -297,7 +297,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           ))}
         </div>
 
-        {/* 🚨 [통합 소셜 사이드바] 방명록과 채팅 스위칭 영역 */}
+        {/* 방명록과 채팅 스위칭 영역 */}
         <div style={{ 
           width: '300px', 
           height: `${CANVAS_HEIGHT}px`, 
@@ -308,7 +308,7 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
           flexDirection: 'column' 
         }}>
   
-          {/* 1. 상단 탭 헤더 */}
+          {/* 상단 탭 헤더 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <h4 style={{ margin: 0 }}>{activeTab === 'GUESTBOOK' ? t('sidebar.guestbook_tab') : t('sidebar.chat_tab')}</h4>
             <button 
@@ -319,9 +319,8 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
             </button>
           </div>
 
-          {/* 2. 탭에 따른 본문 출력 */}
+          {/* 탭에 따른 본문 출력 */}
           {activeTab === 'GUESTBOOK' ? (
-          /* 기존에 쓰던 방명록 스타일 유지 */
           <>
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: '10px', border: '1px solid #ddd', padding: '10px', backgroundColor: 'white' }}>
               {guestbooks.map((gb, i) => (
@@ -370,9 +369,8 @@ export default function EcosystemRoom({ currentRoom, currentUser, setUser, refre
   );
 }
 
-
-// 이미지
-// EcosystemRoom.jsx 파일 맨 아래
+// 이미지 랜더링
+// 크리터
 function CritterRendering({ critter, onClick }) {
   const imagePath = getCritterImagePath(critter.critterType, critter.status);
   const [useEmoji, setUseEmoji] = useState(false);
@@ -426,10 +424,10 @@ function CritterRendering({ critter, onClick }) {
         top: `${critter.y}px`, 
         transform: 'translate(-50%, -50%)',
         transition: 'left 0.033s linear, top 0.033s linear',
-        width: '35px', // 이름을 담으려고 조금 넓혔어
+        width: '35px',
         height: '35px',
         display: 'flex',
-        flexDirection: 'column', // 위아래로 쌓기
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
@@ -449,12 +447,12 @@ function CritterRendering({ critter, onClick }) {
       <div style={{
         marginTop: nameMargin,
         padding: '2px 6px',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검은 판
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         color: 'white',
         borderRadius: '4px',
         fontSize: '10px',
-        whiteSpace: 'nowrap', // 이름 길어도 한 줄 유지
-        pointerEvents: 'none' // 이름표 클릭 시 동물 클릭 안 되게 방지
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none'
       }}>
         {critter.name || t('room.no_name')}
       </div>
@@ -466,7 +464,6 @@ function CritterRendering({ critter, onClick }) {
 function FoodRendering({ food }) {
   const [useEmoji, setUseEmoji] = useState(false);
   
-  // 1. 픽셀 아트 이미지 경로 (public/sprites/food/ 타입명.png)
   const imagePath = `/sprites/food/${food.type}.png`;
 
   const SCALE_MAP = {
@@ -482,7 +479,6 @@ function FoodRendering({ food }) {
   }
   const scale = SCALE_MAP[food.type] || 1.0;
   
-  // 2. 이미지가 없을 때 보여줄 예비 이모지 맵
   const EMOJI_MAP = {
     FISH: '🐟', SHRIMP: '🦐', BUG: '🐛',
     MEAT: '🍖', EGG: '🥚', KIBBLE: '🥫',

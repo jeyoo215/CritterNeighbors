@@ -5,7 +5,7 @@ export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   const changeLanguage = (lng) => {
-    // 💡 넘어온 언어 코드로 변경!
+    // 넘어온 언어 코드로 변경!
     i18n.changeLanguage(lng);
   };
 
@@ -27,7 +27,6 @@ const containerStyle = {
   gap: '10px',
   alignItems: 'center',
   padding: '10px 20px',
-  // 배경색 없음! 구글 메인처럼 투명하게!
   backgroundColor: 'transparent',
   fontFamily: 'Arial, sans-serif'
 };
@@ -35,7 +34,7 @@ const containerStyle = {
 const textButtonStyle = {
   background: 'none',
   border: 'none',
-  color: '#5f6368', // 구글스러운 짙은 회색
+  color: '#5f6368',
   cursor: 'pointer',
   fontSize: '16px',
   padding: '5px',

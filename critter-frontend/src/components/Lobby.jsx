@@ -10,7 +10,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
   const { t } = useTranslation('lobby');
 
-  // 🔍 마운트 시 유저의 실제 방 목록 조회
+  // 유저의 실제 방 목록 조회
   const fetchMyRooms = async () => {
     try {
       const response = await api.get(`/ecosystems/my`);
@@ -22,7 +22,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
 
   const fetchRecommendedRooms = async () => {
     try {
-      // 예: 서버에서 랜덤 5개를 주는 엔드포인트가 있다고 가정
+      // 서버에서 추천 목록 받아옴
       const response = await api.get(`/ecosystems/random`);
       setRecommendedRooms(response.data);
     } catch (error) {
@@ -39,7 +39,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
   const createRoom = async () => {
     if (!roomNameInput.trim()) return alert(t('error.empty'));
 
-    // 1. 첫 방 무료, 추가 방은 50P 체크 (백엔드 로직에 맞춰서 예외 처리 추가 가능)
+    // 첫 방 무료, 추가 방은 50P 체크
     const cost = myRooms.length > 0 ? 50 : 0; 
     if (user.point < cost) {
       return alert(t('error.points', {cost: cost, points: user.point}));
@@ -87,10 +87,9 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
       </button>
       </p>
 
-      {/* 3. 버튼 로직 수정 */}
       <button 
         className="board-btn" 
-        onClick={onGoToBoard} // 👈 navigate 대신 이 함수 호출
+        onClick={onGoToBoard}
         style={{ padding: '10px 20px', marginBottom: '20px', cursor: 'pointer' }}
       >
         {t('goto_board')}
@@ -140,7 +139,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
         </button>
       </div>
 
-      {/* 📋 방 목록 섹션 */}
+      {/* 방 목록 섹션 */}
       <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px' }}>
         <h3>{t('my_rooms.title')}</h3>
         {myRooms.length === 0 ? (
@@ -165,7 +164,7 @@ export default function Lobby({ user, setUser, onEnterRoom, onGoToBoard, onLogou
         )}
       </div>
 
-      {/* 🌐 추천 생태계 목록 섹션 */}
+      {/* 추천 생태계 목록 섹션 */}
       <div style={{ background: '#fff3e0', padding: '20px', borderRadius: '8px', marginTop: '20px', border: '1px solid #ffe0b2' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '30px', marginBottom: '15px' }}>
           <h3 style={{ margin: 0 }}>

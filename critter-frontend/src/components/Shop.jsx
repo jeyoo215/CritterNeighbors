@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchShopItems, adoptCritterApi, buyFoodApi } from '../api/shopApi';
 
 export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, currentRoom, onBuyFood, onClose, onAdoptSuccess }) {
-  //roomTheme, userPoints
+  // roomTheme, userPoints
   const [critters, setCritters] = useState([]);
   // 각 크리처별로 유저가 입력한 이름을 저장할 객체 상태
   const [nicknames, setNicknames] = useState({});
@@ -23,7 +23,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
     { type: 'BAMBOO', price: 3 },
   ];
 
-  // 1. 서버에서 상점 아이템 목록 가져오기
+  // 서버에서 상점 아이템 목록 가져오기
   useEffect(() => {
     const loadItems = async () => {
       try {
@@ -36,7 +36,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
     loadItems();
   }, [roomId]);
 
-  // 2. 입양 요청 처리
+  // 입양 요청 처리
   const handleAdopt = async (critter) => {
     const translatedName = t(`item.critter.${critter.type.toLowerCase()}`);
     const name = prompt(t('alert.naming', { name: translatedName }), translatedName);
@@ -51,7 +51,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
       onClose();
     } catch (error) {
       console.error("입양 실패:", error);
-      alert(t('error.adopt_fail')); // 에러 처리도 간단해짐!
+      alert(t('error.adopt_fail'));
     }
   };
 
@@ -78,7 +78,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
       padding: '20px', 
       background: '#f9f9f9', 
       borderRadius: '10px',
-      width: '400px', // 적당한 상점 너비
+      width: '400px',
       margin: '0 auto',
       position: 'relative'
     }}>
@@ -101,7 +101,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
       <h3 style={{ marginTop: 0 }}>{t('title')}</h3>
       <p>{t('my_points', {points: currentUser.point})}</p>
       
-      {/* 🟢 탭 버튼 */}
+      {/* 탭 버튼 */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         {isMyRoom && (
           <button 
@@ -121,7 +121,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
       </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', maxHeight: '400px', overflowY: 'auto' }}>
-        {/* 🐾 크리터 탭 */}
+        {/* 크리터 탭 */}
         {activeTab === 'CRITTER' && critters.map((critter) => {
           const isCompatible = critter.theme === currentRoom.roomTheme;
           return (
@@ -135,7 +135,7 @@ export default function Shop({ roomId, currentUser, isMyRoom, setCurrentUser, cu
           );
         })}
 
-        {/* 🍔 먹이 탭 */}
+        {/* 먹이 탭 */}
         {activeTab === 'FOOD' && FOOD_ITEMS.map((food) => (
           <div key={food.type} style={{ border: '1px solid #e67e22', padding: '10px', borderRadius: '8px', background: 'white', textAlign: 'center', fontSize: '12px' }}>
             <h4>{t(`item.food.${food.type.toLowerCase()}`)}</h4>

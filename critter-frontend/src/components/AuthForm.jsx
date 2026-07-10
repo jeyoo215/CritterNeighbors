@@ -27,7 +27,8 @@ export default function AuthForm({ onLoginSuccess }) {
         onLoginSuccess(response.data);
       }
     } catch (err) {
-      // 💡 하얀 화면 방지: 에러 객체를 문자열로 안전하게 변환
+      // 하얀 화면 방지
+      // 에러 객체를 문자열로 안전하게 변환
       let message = t('message.error_default');
       if (err.response && err.response.data) {
         const data = err.response.data;

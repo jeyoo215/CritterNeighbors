@@ -72,7 +72,7 @@ const formatBoardDate = (dateString) => {
   const textButtonStyle = {
   background: 'none',
   border: 'none',
-  color: '#5f6368', // 구글스러운 짙은 회색
+  color: '#5f6368',
   cursor: 'pointer',
   fontSize: '16px',
   padding: '5px',

@@ -28,7 +28,8 @@ export default function BoardCreate({ user, onBackToList, refreshUser }) {
       if (refreshUser) {
         await refreshUser(); 
       }
-      onBackToList(); // 성공하면 게시판 목록으로 이동
+      onBackToList();
+      // 성공하면 게시판 목록으로 이동
     } catch (e) {
       console.error("등록 실패", e);
       alert(t('create.alert.write_error'));
