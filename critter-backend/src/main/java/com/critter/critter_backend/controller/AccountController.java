@@ -14,7 +14,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // 리액트 연동용 CORS 허용 및 세션 쿠키 허용 설정!
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+// 리액트 연동용 CORS 허용 및 세션 쿠키 허용 설정
 public class AccountController {
 
     private final AccountService userService;

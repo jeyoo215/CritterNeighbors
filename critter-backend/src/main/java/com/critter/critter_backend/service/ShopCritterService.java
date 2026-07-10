@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.critter.critter_backend.domain.CritterType;
+import com.critter.critter_backend.exception.ResourceNotFoundException;
 import com.critter.critter_backend.repository.ShopCritterRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +34,7 @@ public class ShopCritterService {
 
     public Long getCritterPrice(CritterType type) {
         return shopCritterRepository.findByType(type)
-                .orElseThrow(() -> new RuntimeException("해당 크리처 정보를 찾을 수 없습니다."))
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 크리터입니다."))
                 .getPrice();
     }
 }

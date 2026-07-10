@@ -10,7 +10,9 @@ import com.critter.critter_backend.entity.Critter;
 import com.critter.critter_backend.entity.Ecosystem;
 import com.critter.critter_backend.event.ActionLogEvents;
 import com.critter.critter_backend.event.PointEvents;
-import com.critter.critter_backend.exception.InvalidHabitatException;
+import com.critter.critter_backend.exception.ResourceNotFoundException;
+import com.critter.critter_backend.exception.account.ForbiddenException;
+import com.critter.critter_backend.exception.habitat.InvalidHabitatException;
 import com.critter.critter_backend.repository.CritterRepository;
 import com.critter.critter_backend.repository.EcosystemRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,22 +39,22 @@ public class CritterService {
         eventPublisher.publishEvent(new PointEvents.Spend(userId, price, PointReason.ADOPT_CRITTER));
 
         Ecosystem room = ecosystemRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 생태계 방입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 생태계 방입니다."));
 
         if (!room.getRoomTheme().equals(critterType.getRequiredTheme())) {
             throw new InvalidHabitatException("환경 상성 불일치");
         }
 
-        // 3. 검증 통과 시 MySQL DB에 새 생명체 정적 정보 저장
+        // 검증 통과 시 MySQL DB에 새 생명체 정적 정보 저장
         Critter critter = new Critter();
-        critter.setEcosystem(room); // 대포스트 매핑 확인
+        critter.setEcosystem(room);
         critter.setCritterName(critterName);
         critter.setCritterType(critterType);
         critter.setStatus(CritterStatus.IDLE);
         Critter adoptCritter = critterRepository.save(critter);
 
         if (!critter.getEcosystem().getAccount().getUserId().equals(userId)) {
-            throw new RuntimeException("본인의 방에서만 크리터를 입양할 수 있습니다.");
+            throw new ForbiddenException("본인의 방에서만 크리터를 입양할 수 있습니다.");
         }
 
         eventPublisher.publishEvent(new ActionLogEvents.recordActionLog(userId, roomId, adoptCritter.getCritterId(), LogTargetType.CRITTER, ActionType.ADOPT_CRITTER));
@@ -66,6 +68,7 @@ public class CritterService {
             .findFirst()
             .ifPresent(critter -> {
                 // 패닉 로직
+                // 즉각 적용+반응
                 critter.setStatus("PANIC");
                 double dx = critter.getX() - mouseX;
                 double dy = critter.getY() - mouseY;

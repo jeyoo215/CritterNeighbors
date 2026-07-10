@@ -13,10 +13,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 클라이언트가 데이터를 구독(Sub)할 때 사용할 프리픽스 설정
+        // 클라이언트가 데이터를 구독할 때 사용할 프리픽스 설정
         config.enableSimpleBroker("/topic", "/queue");
         
-        // 클라이언트가 서버로 메시지를 보낼(Pub) 때 사용할 프리픽스 설정
+        // 클라이언트가 서버로 메시지를 보낼 때 사용할 프리픽스 설정
         config.setApplicationDestinationPrefixes("/app");
     }
 

@@ -1,8 +1,8 @@
 package com.critter.critter_backend.service;
 
 import com.critter.critter_backend.entity.Account;
-import com.critter.critter_backend.exception.BadCredentialsException;
-import com.critter.critter_backend.exception.DuplicateUsernameException;
+import com.critter.critter_backend.exception.account.BadCredentialsException;
+import com.critter.critter_backend.exception.account.DuplicateUsernameException;
 import com.critter.critter_backend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -22,9 +22,7 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다. ID: " + userId));
     }
     
-    /*
-     * 회원가입
-     */
+    // 회원가입
     @Transactional
     public Account register(String userName, String password, String nickname) {
         if (accountRepository.findByUserName(userName).isPresent()) {
@@ -44,20 +42,13 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    /*
-     * 로그인 및 검증
-     */
+    // 로그인 및 검증
     @Transactional(readOnly = true)
     public Account login(String userName, String password) {
         Account account = accountRepository.findByUserName(userName)
                 .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        System.out.println("입력한 평문 비번: " + password);
-        System.out.println("DB에 저장된 암호문: " + account.getPassword());
-        boolean isMatch = passwordEncoder.matches(password, account.getPassword());
-        System.out.println("비밀번호 일치 여부: " + isMatch);
-
-        if (!isMatch) {
+        if (!passwordEncoder.matches(password, account.getPassword())) {
             throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 

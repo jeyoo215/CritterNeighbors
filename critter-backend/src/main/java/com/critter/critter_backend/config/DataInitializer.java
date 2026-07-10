@@ -27,7 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
-// final로 선언된 녀석들을 자동으로 파라미터로 받는 생성자 생성
+// final로 선언된 것을 자동으로 파라미터로 받는 생성자 생성
 @Profile("local")
 public class DataInitializer {
 

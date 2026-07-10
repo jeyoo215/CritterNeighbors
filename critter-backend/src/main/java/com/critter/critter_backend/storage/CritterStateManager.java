@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CritterStateManager {
-    // roomId:critterId -> 남은 시간(틱)
+    // roomId:critterId -> 남은 시간
     private final Map<String, Integer> shelterTimers = new ConcurrentHashMap<>();
 
     public void startShelter(Long roomId, Long critterId, int duration) {

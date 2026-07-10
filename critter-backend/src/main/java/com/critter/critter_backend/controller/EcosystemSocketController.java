@@ -50,7 +50,7 @@ public class EcosystemSocketController {
             List<CritterLocationDto> memoryCritters = new ArrayList<>();
 
             for (Critter c : dbCritters) {
-                // c.getStatus() 뒤에 .name()을 붙여 DTO(String) 규격에 완벽 일치!
+                // c.getStatus().name()으로 DTO(String) 규격에 완벽 일치
                 memoryCritters.add(new CritterLocationDto(
                         c.getCritterId(),
                         c.getCritterName(),
@@ -67,11 +67,10 @@ public class EcosystemSocketController {
 
         if ("DEFAULT".equals(memoryStorage.getRoomTheme(roomId))) {
             Ecosystem room = ecosystemRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("방 없음"));
+                .orElseThrow(() -> new IllegalArgumentException("방이 없음!"));
         
-            // 메모리에 등록! (이걸 안 해서 계속 DEFAULT였던 것)
+            // 메모리에 등록
             memoryStorage.registerRoom(roomId, room.getRoomTheme().name());
-            log.info("메모리에 테마 등록 완료: {} -> {}", roomId, room.getRoomTheme());
         }
 
         Long userId = (Long) session.get("USER_ID");
@@ -109,7 +108,7 @@ public class EcosystemSocketController {
                                @Header("simpSessionAttributes") Map<String, Object> session) {
         Long userId = (Long) session.get("USER_ID");
         
-        // 1. 프론트에서 보낸 좌표와 타입을 확실하게 꺼내기
+        // 프론트에서 보낸 좌표와 타입을 확실하게 꺼내기
         double x = Double.parseDouble(payload.get("x").toString());
         double y = Double.parseDouble(payload.get("y").toString());
         String foodTypeStr = payload.get("foodType").toString();

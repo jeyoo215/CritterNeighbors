@@ -4,6 +4,8 @@ import com.critter.critter_backend.entity.Board;
 import com.critter.critter_backend.entity.Comment;
 import com.critter.critter_backend.event.ActionLogEvents;
 import com.critter.critter_backend.event.PointEvents;
+import com.critter.critter_backend.exception.ResourceNotFoundException;
+import com.critter.critter_backend.exception.account.ForbiddenException;
 import com.critter.critter_backend.domain.ActionType;
 import com.critter.critter_backend.domain.BoardCategory;
 import com.critter.critter_backend.domain.PointReason;
@@ -37,7 +39,7 @@ public class BoardService {
     @Transactional
     public Board createBoard(Long writerId, BoardCategory category, String title, String content) {
         Account writer = accountRepository.findById(writerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 유저입니다."));
 
         Board board = new Board();
         board.setWriter(writer);
@@ -66,7 +68,7 @@ public class BoardService {
     // 게시글 상세 조회
     public Board getBoardDetail(Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문글입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 글입니다."));
     }
 
     public Board getNextBoard(Long currentBoardId) {
@@ -82,12 +84,11 @@ public class BoardService {
     @Transactional
     public Comment createComment(Long boardId, Long writerId, String content) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문글입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 글입니다."));
 
         Account writer = accountRepository.findById(writerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 유저입니다."));
 
-        // 빌더 패턴으로 생성
         Comment comment = Comment.builder()
                 .board(board)
                 .writer(writer)
@@ -107,7 +108,7 @@ public class BoardService {
     public List<Comment> getCommentsByBoard(Long boardId) {
         // 먼저 게시글이 존재하는지 검증
         if (!boardRepository.existsById(boardId)) {
-            throw new IllegalArgumentException("존재하지 않는 질문글입니다.");
+            throw new ResourceNotFoundException("존재하지 않는 글입니다.");
         }
         return commentRepository.findByBoard_BoardIdOrderByCreatedAtAsc(boardId);
     }
@@ -117,10 +118,10 @@ public class BoardService {
     @Transactional
     public Board updateBoard(Long userId, Long boardId, String title, String content) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("글이 없습니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 글입니다."));
 
         if (!board.getWriter().getUserId().equals(userId)) {
-            throw new RuntimeException("본인의 글만 수정할 수 있습니다.");
+            throw new ForbiddenException("본인의 글만 수정할 수 있습니다.");
         }
         
         board.setTitle(title);
@@ -137,10 +138,10 @@ public class BoardService {
     @Transactional
     public Comment updateComment(Long userId, Long commentId, String content) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글이 없습니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 댓글입니다."));
 
         if (!comment.getWriter().getUserId().equals(userId)) {
-            throw new RuntimeException("본인의 글만 수정할 수 있습니다.");
+            throw new ForbiddenException("본인의 댓글만 수정할 수 있습니다.");
         }
         
         comment.setContent(content);
@@ -156,11 +157,11 @@ public class BoardService {
     @Transactional
     public void deleteBoard(Long userId, Long boardId) {
         Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 글입니다."));
     
         // 본인 확인 로직
         if (!board.getWriter().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+            throw new ForbiddenException("본인의 글만 삭제할 수 있습니다.");
         }
 
         eventPublisher.publishEvent(new ActionLogEvents.recordActionLog(userId, null, boardId, LogTargetType.BOARD, ActionType.DELETE_BOARD));
@@ -173,11 +174,11 @@ public class BoardService {
     @Transactional
     public void deleteComment(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-            .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 댓글입니다."));
 
         // 본인 확인 로직
         if (!comment.getWriter().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+            throw new ForbiddenException("본인의 댓글만 삭제할 수 있습니다.");
         }
 
         eventPublisher.publishEvent(new ActionLogEvents.recordActionLog(userId, null, commentId, LogTargetType.COMMENT, ActionType.DELETE_COMMENT));

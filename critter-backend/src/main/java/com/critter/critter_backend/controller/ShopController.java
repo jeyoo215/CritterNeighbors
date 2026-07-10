@@ -64,14 +64,14 @@ public class ShopController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     
-        // 웹소켓 메모리에 투입 (이때 savedCritter의 type이 그대로 들어가니 프론트에서 자동 인식)
+        // 웹소켓 메모리에 투입 (이때 savedCritter의 type이 그대로 들어가므로 프론트에서 자동 인식)
         CritterLocationDto newCritterDto = new CritterLocationDto(
             savedCritter.getCritterId(),
             savedCritter.getCritterName(),
             savedCritter.getCritterType().name(),
-            Math.random() * 800, // Double
-            Math.random() * 600, // Double
-            "IDLE",              // String
+            Math.random() * 800,
+            Math.random() * 600,
+            "IDLE",
             Double.valueOf(Math.random() * 2 - 1),
             Double.valueOf(Math.random() * 2 - 1)
         );
@@ -95,7 +95,7 @@ public class ShopController {
         FoodType foodType = FoodType.valueOf(request.get("foodType").toString());
         Long roomId = Long.valueOf(request.get("roomId").toString());
 
-        // 🟢 서비스 호출! (이제 모든 로직은 FoodService 안에 있어요)
+        // 서비스 호출
         try {
             foodService.purchaseFood(userId, roomId, foodType);
             return ResponseEntity.ok().build();

@@ -28,7 +28,6 @@ public class FoodService {
 
     @Transactional
     public void purchaseFood(Long userId, Long roomId, FoodType type) {
-        // 1. 포인트 차감
         eventPublisher.publishEvent(new PointEvents.Spend(userId, 3L, PointReason.BUY_FOOD));
 
         eventPublisher.publishEvent(new ActionLogEvents.recordActionLog(

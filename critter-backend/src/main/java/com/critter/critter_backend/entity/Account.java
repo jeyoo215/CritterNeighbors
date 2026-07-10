@@ -45,7 +45,7 @@ public class Account {
         this.createdAt = LocalDateTime.now();
     }
 
-    @Builder.Default // 👈 빌더로 생성할 때 이 값을 기본으로 씀!
+    @Builder.Default // 빌더로 생성할 때 이 값을 기본으로 사용
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 100")
     private Long point = 100L;
 

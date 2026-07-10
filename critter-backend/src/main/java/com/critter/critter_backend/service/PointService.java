@@ -14,6 +14,8 @@ import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.entity.Ecosystem;
 import com.critter.critter_backend.entity.PointLog;
 import com.critter.critter_backend.event.PointEvents;
+import com.critter.critter_backend.exception.ResourceNotFoundException;
+import com.critter.critter_backend.exception.point.NoPointException;
 import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.repository.EcosystemRepository;
 
@@ -50,7 +52,7 @@ public class PointService {
     @Transactional
     public boolean processVisit(Long userId, Long roomId) {
         Ecosystem room = ecosystemRepository.findById(roomId)
-            .orElseThrow(() -> new RuntimeException("방을 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 방입니다."));
 
         if (room.getAccount().getUserId().equals(userId)) {
             return false;
@@ -69,10 +71,10 @@ public class PointService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void spend(Long userId, Long amount, PointReason reason) {
         Account account = accountRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 유저입니다."));
         
         if (account.getPoint() < amount) {
-            throw new RuntimeException("포인트가 부족합니다!");
+            throw new NoPointException("포인트가 부족합니다!");
         }
         
         account.addPoint(-amount);
@@ -99,7 +101,7 @@ public class PointService {
         // 당일 오전 6시를 기준으로 함
         LocalDateTime resetTime = now.withHour(6).withMinute(0).withSecond(0).withNano(0);
         
-        // 지금 시간이 6시 이전이라면, 리셋 기준은 어제 6시가 됨
+        // 지금 시간이 6시 이전이라면, 리셋 기준은 어제 6시
         if (now.isBefore(resetTime)) {
             resetTime = resetTime.minusDays(1);
         }

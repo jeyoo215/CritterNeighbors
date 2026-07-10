@@ -4,6 +4,7 @@ import com.critter.critter_backend.domain.ActionType;
 import com.critter.critter_backend.domain.LogTargetType;
 import com.critter.critter_backend.entity.ActionLog;
 import com.critter.critter_backend.event.ActionLogEvents;
+import com.critter.critter_backend.exception.ResourceNotFoundException;
 import com.critter.critter_backend.repository.ActionLogRepository;
 import com.critter.critter_backend.repository.BoardRepository;
 import com.critter.critter_backend.repository.CommentRepository;
@@ -70,21 +71,21 @@ public class ActionLogService {
 
         if (targetType == LogTargetType.CRITTER) {
             critterRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 크리터입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 크리터입니다."));
         } else if (targetType == LogTargetType.BOARD) {
             boardRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 게시글입니다."));
         } else if (targetType == LogTargetType.COMMENT) {
             commentRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 댓글입니다."));
         } else if (targetType == LogTargetType.GUESTBOOK) {
             guestbookRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방명록입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 방명록입니다."));
         } else if (targetType == LogTargetType.ROOM) {
             ecosystemRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 방입니다."));
         } else {
-            throw new IllegalArgumentException("지원하지 않는 대상입니다.");
+            throw new ResourceNotFoundException("지원하지 않는 대상입니다.");
         }
     }
 }

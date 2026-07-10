@@ -5,7 +5,10 @@ import com.critter.critter_backend.domain.PointReason;
 import com.critter.critter_backend.entity.Account;
 import com.critter.critter_backend.entity.Ecosystem; 
 import com.critter.critter_backend.event.PointEvents;
-import com.critter.critter_backend.repository.AccountRepository; // 💡 이제 절대 안 틀림! 완벽 매핑!
+import com.critter.critter_backend.exception.ResourceNotFoundException;
+import com.critter.critter_backend.exception.habitat.HabitatNotFoundException;
+import com.critter.critter_backend.exception.point.NoPointException;
+import com.critter.critter_backend.repository.AccountRepository;
 import com.critter.critter_backend.repository.EcosystemRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +31,7 @@ public class EcosystemService {
     @Transactional
     public Ecosystem createRoom(Long userId, String roomName, String themeStr) {
         Account account = accountRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 유저입니다."));
 
         List<Ecosystem> existingRooms = ecosystemRepository.findByAccount_UserId(userId);
         boolean isFirstRoom = existingRooms.isEmpty();
@@ -36,17 +39,16 @@ public class EcosystemService {
         Long price = isFirstRoom ? 0L : 50L;
 
         if (account.getPoint() < price) {
-            throw new RuntimeException("포인트가 부족해요!");
+            throw new NoPointException("포인트가 부족합니다.");
         }
 
         EcosystemTheme theme;
         try {
             theme = EcosystemTheme.valueOf(themeStr.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("올바르지 않은 환경 테마입니다.");
+            throw new HabitatNotFoundException("올바르지 않은 환경 테마입니다.");
         }
 
-        // 3. 방 엔티티 빌드 및 저장
         Ecosystem ecosystem = new Ecosystem();
         ecosystem.setAccount(account);
         ecosystem.setRoomName(roomName);
@@ -69,7 +71,7 @@ public class EcosystemService {
     // 남의 방
     @Transactional(readOnly = true)
     public List<Ecosystem> getRandomRoomsExcludingUser(Long userId) {
-        // 레포지토리에서 쿼리로 뽑아온 5개를 그대로 반환!
+        // 레포지토리에서 쿼리로 뽑아온 5개를 그대로 반환
         return ecosystemRepository.findRandomRoomsExcludingUser(userId); 
     }
 }
